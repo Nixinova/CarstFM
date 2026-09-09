@@ -3,10 +3,12 @@ package com.nixinova.carstfm.shared
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
+import androidx.car.app.model.CarIcon
 import androidx.car.app.model.Pane
 import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
+import androidx.core.graphics.drawable.IconCompat
 import com.nixinova.carstfm.shared.model.CurrentTrack
 import java.time.Instant
 import java.time.ZoneId
@@ -18,7 +20,7 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
             trackName = "Track Name",
             artistName = "Artist Name",
             albumName = "Album Name",
-            albumArtUrl = "https://example.com",
+            albumArt = IconCompat.createWithResource(carContext, R.drawable.sample),
             firstPlayed = Instant.parse("2026-08-01T00:00:00Z"),
             lastPlayed = Instant.parse("2026-07-01T00:00:00Z"),
             tags = listOf("edm", "rock", "pop"),
@@ -27,16 +29,15 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
             .withZone(ZoneId.systemDefault())
 
         val pane = Pane.Builder()
-            .addRow(
-                Row.Builder()
-                    .setTitle(currentTrack.trackName)
-                    .addText(currentTrack.artistName)
+            .setImage(
+                CarIcon.Builder(currentTrack.albumArt)
                     .build()
             )
             .addRow(
                 Row.Builder()
-                    .setTitle(currentTrack.albumName)
-                    .addText(currentTrack.albumArtUrl)
+                    .setTitle(currentTrack.trackName)
+                    .addText(currentTrack.artistName)
+                    .addText(currentTrack.albumName)
                     .build()
             )
             .addRow(
