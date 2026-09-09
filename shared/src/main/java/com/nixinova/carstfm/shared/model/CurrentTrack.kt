@@ -7,8 +7,7 @@ data class CurrentTrack(
     val artistName: String,
     val albumName: String,
     val albumArtUrl: String,
-    val time: Instant,
     val firstPlayed: Instant,
     val lastPlayed: Instant,
-    val hasTags: Boolean
+    val tags: List<String>,
 )

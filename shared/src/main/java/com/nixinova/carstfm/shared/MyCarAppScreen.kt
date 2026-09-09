@@ -12,8 +12,6 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-
-
 class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
     override fun onGetTemplate(): Template {
         val currentTrack = CurrentTrack(
@@ -21,10 +19,9 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
             artistName = "Artist Name",
             albumName = "Album Name",
             albumArtUrl = "https://example.com",
-            time = Instant.parse("2026-09-01T00:00:00Z"),
             firstPlayed = Instant.parse("2026-08-01T00:00:00Z"),
             lastPlayed = Instant.parse("2026-07-01T00:00:00Z"),
-            hasTags = true,
+            tags = listOf("edm", "rock", "pop"),
         )
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
             .withZone(ZoneId.systemDefault())
@@ -44,12 +41,6 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
             )
             .addRow(
                 Row.Builder()
-                    .setTitle(formatter.format(currentTrack.time))
-                    .addText("(now)")
-                    .build()
-            )
-            .addRow(
-                Row.Builder()
                     .setTitle("Info")
                     .addText("First played: " + formatter.format(currentTrack.firstPlayed))
                     .addText("Last played: " + formatter.format(currentTrack.lastPlayed))
@@ -58,7 +49,7 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
             .addRow(
                 Row.Builder()
                     .setTitle("Tags")
-                    .addText(if (currentTrack.hasTags) "Yes" else "No")
+                    .addText(currentTrack.tags.joinToString(", "))
                     .build()
             )
             .build()
