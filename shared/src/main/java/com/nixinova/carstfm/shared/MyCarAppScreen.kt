@@ -21,9 +21,9 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
             artistName = "Artist Name",
             albumName = "Album Name",
             albumArtUrl = "https://example.com",
-            time = Instant.parse("2026-09-01"),
-            firstPlayed = Instant.parse("2026-08-01"),
-            lastPlayed = Instant.parse("2026-07-01"),
+            time = Instant.parse("2026-09-01T00:00:00Z"),
+            firstPlayed = Instant.parse("2026-08-01T00:00:00Z"),
+            lastPlayed = Instant.parse("2026-07-01T00:00:00Z"),
             hasTags = true,
         )
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
