@@ -23,6 +23,8 @@ class CarAppScreen(
 ) : Screen(carContext) {
     // Time to dwell on each item when displaying a carousel of text data
     val dwellTime: Duration = Duration.ofSeconds(8)
+    // Interval to refetch current track info
+    val refetchTime: Duration = Duration.ofSeconds(30)
 
     private var currentTrack: CurrentTrack? = null
 
@@ -89,24 +91,28 @@ class CarAppScreen(
             .build()
     }
 
-    private fun loadCurrentTrack() {
-        Thread {
-            currentTrack = repository.getCurrentTrack(carContext, username)
-        }.start()
-    }
-
     private val handler = Handler(Looper.getMainLooper())
 
     private val updateRunnable = object : Runnable {
         // Refresh UI every dwellTime seconds
         override fun run() {
             handler.postDelayed(this, dwellTime.toMillis())
-            loadCurrentTrack()
             invalidate()
+        }
+    }
+
+    private val fetchTrackRunnable = object : Runnable {
+        // Fetch current track
+        override fun run() {
+            Thread {
+                currentTrack = repository.getCurrentTrack(carContext, username)
+            }.start()
+            handler.postDelayed(this, refetchTime.toMillis())
         }
     }
 
     init {
         handler.post(updateRunnable)
+        handler.post(fetchTrackRunnable)
     }
 }
