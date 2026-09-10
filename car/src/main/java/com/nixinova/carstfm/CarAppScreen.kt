@@ -10,45 +10,47 @@ import androidx.car.app.model.Pane
 import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
-import androidx.core.graphics.drawable.IconCompat
 import com.nixinova.carstfm.model.CurrentTrack
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class CarAppScreen(carContext: CarContext) : Screen(carContext) {
+class CarAppScreen(
+    carContext: CarContext,
+    private val repository: LastFmRepository,
+    private val username: String
+) : Screen(carContext) {
     // Time to dwell on each item when displaying a carousel of text data
     val dwellTime: Duration = Duration.ofSeconds(8)
 
+    private var currentTrack: CurrentTrack? = null
+
     override fun onGetTemplate(): Template {
-        val currentTrack = getCurrentTrack()
-
-        return createTrackPane(currentTrack)
+        return createTemplate(currentTrack)
     }
 
-    private fun getCurrentTrack(): CurrentTrack {
-        val currentTrack = CurrentTrack(
-            trackName = "Track Name",
-            artistName = "Artist Name",
-            albumName = "Album Name",
-            albumArt = IconCompat.createWithResource(carContext, R.drawable.sample),
-            firstPlayed = Instant.parse("2026-08-01T00:00:00Z"),
-            lastPlayed = Instant.parse("2026-07-01T00:00:00Z"),
-            tags = listOf("edm", "rock", "pop"),
-        )
+    private fun createTemplate(currentTrack: CurrentTrack?): Template {
+        val pane = if (currentTrack == null) {
+            Pane.Builder().setLoading(true).build()
+        } else {
+            createPane(currentTrack)
+        }
 
-        return currentTrack
+        return PaneTemplate.Builder(pane)
+            .setHeaderAction(Action.APP_ICON)
+            .setTitle("CarstFM")
+            .build()
     }
 
-    private fun createTrackPane(currentTrack: CurrentTrack): Template {
+    private fun createPane(currentTrack: CurrentTrack): Pane {
         val formatter = DateTimeFormatter.ofPattern("d MMM yyyy")
             .withZone(ZoneId.systemDefault())
 
         // A dummy number used in modulo operations below to denote which page of some data to view
         val carouselValue = (Instant.now().epochSecond.toInt() % 60) / dwellTime.seconds.toInt()
 
-        val pane = Pane.Builder()
+        return Pane.Builder()
             .setImage(
                 CarIcon.Builder(currentTrack.albumArt)
                     .build()
@@ -85,11 +87,12 @@ class CarAppScreen(carContext: CarContext) : Screen(carContext) {
                     .build()
             )
             .build()
+    }
 
-        return PaneTemplate.Builder(pane)
-            .setHeaderAction(Action.APP_ICON)
-            .setTitle("CarstFM")
-            .build()
+    private fun loadCurrentTrack() {
+        Thread {
+            currentTrack = repository.getCurrentTrack(carContext, username)
+        }.start()
     }
 
     private val handler = Handler(Looper.getMainLooper())
@@ -98,6 +101,7 @@ class CarAppScreen(carContext: CarContext) : Screen(carContext) {
         // Refresh UI every dwellTime seconds
         override fun run() {
             handler.postDelayed(this, dwellTime.toMillis())
+            loadCurrentTrack()
             invalidate()
         }
     }
