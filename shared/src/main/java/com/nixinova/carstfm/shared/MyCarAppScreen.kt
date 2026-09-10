@@ -1,6 +1,5 @@
 package com.nixinova.carstfm.shared
 
-import android.R.attr.delay
 import android.os.Handler
 import android.os.Looper
 import androidx.car.app.CarContext
@@ -23,6 +22,12 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
     val dwellTime: Duration = Duration.ofSeconds(8)
 
     override fun onGetTemplate(): Template {
+        val currentTrack = getCurrentTrack()
+
+        return createTrackPane(currentTrack)
+    }
+
+    private fun getCurrentTrack(): CurrentTrack {
         val currentTrack = CurrentTrack(
             trackName = "Track Name",
             artistName = "Artist Name",
@@ -33,6 +38,10 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
             tags = listOf("edm", "rock", "pop"),
         )
 
+        return currentTrack
+    }
+
+    private fun createTrackPane(currentTrack: CurrentTrack): Template {
         val formatter = DateTimeFormatter.ofPattern("d MMM yyyy")
             .withZone(ZoneId.systemDefault())
 
