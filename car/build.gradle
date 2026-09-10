@@ -2,7 +2,7 @@ plugins {
     id 'com.android.library'
 }
 android {
-    namespace 'com.nixinova.carstfm.shared'
+    namespace 'com.nixinova.carstfm'
     compileSdk 37
 
     defaultConfig {

@@ -7,7 +7,7 @@
             android:value="1" />
 
         <service
-            android:name="com.nixinova.carstfm.shared.MyCarAppService"
+            android:name="com.nixinova.carstfm.CarAppService"
             android:exported="true">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />

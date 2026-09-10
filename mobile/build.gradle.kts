@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.nixinova.carstfm"
+    namespace = "com.nixinova.carstfm.mobile"
     compileSdk {
         version = release(37)
     }
@@ -37,7 +37,7 @@ android {
 
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
-    implementation(project(":shared"))
+    implementation(project(":car"))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.app.projected)
     implementation(libs.androidx.compose.material3)

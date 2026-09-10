@@ -1,4 +1,4 @@
-package com.nixinova.carstfm.shared.model
+package com.nixinova.carstfm.model
 
 import androidx.core.graphics.drawable.IconCompat
 import java.time.Instant
