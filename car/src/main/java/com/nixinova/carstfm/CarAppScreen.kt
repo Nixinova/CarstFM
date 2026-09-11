@@ -24,7 +24,7 @@ class CarAppScreen(
     // Time to dwell on each item when displaying a carousel of text data
     val dwellTime: Duration = Duration.ofSeconds(8)
     // Interval to refetch current track info
-    val refetchTime: Duration = Duration.ofSeconds(30)
+    val refetchTime: Duration = Duration.ofSeconds(10)
 
     private var currentTrack: CurrentTrack? = null
 
