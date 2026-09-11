@@ -25,6 +25,7 @@ class LastFmRepository {
     private val apiUrlBase = "https://ws.audioscrobbler.com/2.0/"
 
     private var apiKey: String? = null
+    private var cachedCurrentTrack: CurrentTrack? = null
 
     init {
         Thread {
@@ -48,6 +49,16 @@ class LastFmRepository {
         val artist = latestTrackData.getJSONObject("artist").getString("#text")
         val album = latestTrackData.getJSONObject("album").getString("#text")
 
+        val cached = cachedCurrentTrack
+        if (
+            cached != null
+            && cached.trackName == track
+            && cached.artistName == artist
+            && cached.albumName == album
+        ) {
+            return cachedCurrentTrack
+        }
+
         val trackPlays = scrapePageForPlayTimes(username, artist, track)
 
         val userTagsResponse = callLastFmApi(
@@ -70,6 +81,7 @@ class LastFmRepository {
             lastPlayed = trackPlays[trackPlays.size - 1],
             tags = userTags,
         )
+        cachedCurrentTrack = currentTrack
 
         return currentTrack
     }
