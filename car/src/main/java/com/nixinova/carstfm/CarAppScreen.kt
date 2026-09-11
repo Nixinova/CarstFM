@@ -74,7 +74,7 @@ class CarAppScreen(
                             "Last played: " + formatter.format(currentTrack.lastPlayed)
                     )
                     .addText("Tags: " + run {
-                        val numTagsToShow = 3
+                        val numTagsToShow = 2
                         val length = currentTrack.tags.size
                         val startIndex =  carouselValue % length
                         val endIndex = (startIndex + numTagsToShow - 1) % (length * 2)
@@ -82,7 +82,7 @@ class CarAppScreen(
                         val subList = (sortedTags + sortedTags).slice(IntRange(startIndex, endIndex))
                         val totalOthers = length - subList.size
                         val tagsText = subList.joinToString(", ")
-                        val othersText = if (totalOthers > 0) " ( and $totalOthers more)" else ""
+                        val othersText = if (totalOthers > 0) ", + $totalOthers" else ""
 
                         tagsText + othersText
                     })
