@@ -5,9 +5,7 @@ import androidx.core.graphics.drawable.IconCompat
 import com.nixinova.carstfm.model.CurrentTrack
 import org.json.JSONArray
 import org.json.JSONObject
-import org.json.JSONStringer
 import org.json.JSONTokener
-import java.io.BufferedReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
@@ -15,10 +13,7 @@ import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
-import java.time.format.ResolverStyle
-import java.util.Date
 import java.util.Locale
 
 class LastFmRepository {
@@ -154,8 +149,12 @@ class LastFmRepository {
         val connection = URL(url).openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
         connection.setRequestProperty("User-Agent", "CarstFM/1.0 (https://github.com/Nixinova/CarstFM)")
-        return connection.inputStream
-            .bufferedReader()
-            .use { it.readText() }
+        return try {
+            connection.inputStream
+                .bufferedReader()
+                .use { it.readText() }
+        } catch(_: Error) {
+            ""
+        }
     }
 }
