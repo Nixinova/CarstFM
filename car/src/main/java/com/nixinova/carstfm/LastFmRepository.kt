@@ -102,9 +102,12 @@ class LastFmRepository {
         return userTags
     }
 
-    private data class TrackPlays(val earliest: Instant, val latest: Instant)
+    private data class TrackPlays(val earliest: Instant?, val latest: Instant?)
     private fun getTrackPlays(username: String, artist: String, track: String): TrackPlays {
         val trackPlays = scrapePageForPlayTimes(username, artist, track)
+        if (trackPlays.isEmpty()) {
+            return TrackPlays(null, null)
+        }
         return TrackPlays(trackPlays[0], trackPlays[trackPlays.size - 1])
     }
     private fun scrapePageForPlayTimes(username: String, artist: String, track: String): Array<Instant> {

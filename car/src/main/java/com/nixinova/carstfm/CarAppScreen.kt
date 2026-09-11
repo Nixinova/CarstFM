@@ -46,9 +46,6 @@ class CarAppScreen(
     }
 
     private fun createPane(currentTrack: CurrentTrack): Pane {
-        val formatter = DateTimeFormatter.ofPattern("d MMM yyyy")
-            .withZone(ZoneId.systemDefault())
-
         // A dummy number used in modulo operations below to denote which page of some data to view
         val carouselValue = (Instant.now().epochSecond.toInt() % 60) / dwellTime.seconds.toInt()
 
@@ -69,9 +66,9 @@ class CarAppScreen(
                     .setTitle("At a glance")
                     .addText(
                         if (carouselValue % 2 == 0)
-                            "First played: " + formatter.format(currentTrack.firstPlayed)
+                            "First played: " + (formatDate(currentTrack.firstPlayed) ?: "Never")
                         else
-                            "Last played: " + formatter.format(currentTrack.lastPlayed)
+                            "Last played: " + (formatDate(currentTrack.lastPlayed) ?: "Never")
                     )
                     .addText("Tags: " + run {
                         val numTagsToShow = 2
@@ -89,6 +86,15 @@ class CarAppScreen(
                     .build()
             )
             .build()
+    }
+
+    private fun formatDate(date: Instant?): String? {
+        if (date == null) {
+            return null
+        }
+        val formatter = DateTimeFormatter.ofPattern("d MMM yyyy")
+            .withZone(ZoneId.systemDefault())
+        return formatter.format(date)
     }
 
     private val handler = Handler(Looper.getMainLooper())
