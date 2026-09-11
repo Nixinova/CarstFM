@@ -7,6 +7,7 @@ import org.json.JSONObject
 import org.json.JSONStringer
 import org.json.JSONTokener
 import java.io.BufferedReader
+import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -74,14 +75,9 @@ class LastFmRepository {
     }
 
     private fun scrapePageForPlayTimes(username: String, artist: String, track: String): Array<Instant> {
-        return arrayOf(
-            Instant.parse("2000-01-01T00:00:00Z"),
-            Instant.parse("2000-12-31T00:00:00Z"),
-        )
-        // TODO: Fetch fragment correctly
         val url = "https://www.last.fm/user/${username}/library/music/" +
                 "${encode(artist)}/_/${encode(track)}?_pjax=%23content"
-        val response = fetch(url)
+        val response = fetchHtml(url)
         val dateStrs = Regex("""<span title="([^">]+?)">""")
             .findAll(response)
             .map { it.groupValues[1] }
@@ -115,6 +111,15 @@ class LastFmRepository {
         return URL(url)
             .openStream()
             .bufferedReader()
-            .use(BufferedReader::readText)
+            .use { it.readText() }
+    }
+
+    private fun fetchHtml(url: String): String {
+        val connection = URL(url).openConnection() as HttpURLConnection
+        connection.requestMethod = "GET"
+        connection.setRequestProperty("User-Agent", "CarstFM/1.0 (https://github.com/Nixinova/CarstFM)")
+        return connection.inputStream
+            .bufferedReader()
+            .use { it.readText() }
     }
 }
