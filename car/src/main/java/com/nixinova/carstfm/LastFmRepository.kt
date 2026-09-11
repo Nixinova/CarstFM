@@ -3,6 +3,7 @@ package com.nixinova.carstfm
 import androidx.car.app.CarContext
 import androidx.core.graphics.drawable.IconCompat
 import com.nixinova.carstfm.model.CurrentTrack
+import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONStringer
 import org.json.JSONTokener
@@ -67,7 +68,8 @@ class LastFmRepository {
         )
         val userTagsObjects = JSONObject(userTagsResponse)
             .getJSONObject("tags")
-            .getJSONArray("tag")
+            .optJSONArray("tag")
+            ?: JSONArray()
         val userTags = List(userTagsObjects.length()) { i ->
             userTagsObjects.getJSONObject(i).getString("name")
         }
