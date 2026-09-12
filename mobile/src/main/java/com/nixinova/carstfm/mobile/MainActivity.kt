@@ -75,7 +75,7 @@ private fun UsernameForm(settings: Settings) {
         OutlinedTextField(
             label = {
                 Text(
-                    text = "Last.FM Username: " + (savedUsername ?: "(none)" )
+                    text = "Last.FM Username"
                 )
             },
             value = inputUsername,

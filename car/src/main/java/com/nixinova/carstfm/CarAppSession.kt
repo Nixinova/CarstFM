@@ -10,7 +10,6 @@ class CarAppSession(private val settings: Settings) : Session() {
     private val repository = LastFmRepository()
 
     override fun onCreateScreen(intent: Intent): Screen {
-        val username = settings.username
-        return CarAppScreen(carContext, repository, username)
+        return CarAppScreen(carContext, repository, settings)
     }
 }

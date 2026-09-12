@@ -11,6 +11,7 @@ import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
 import com.nixinova.carstfm.model.CurrentTrack
+import com.nixinova.carstfm.model.Settings
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
@@ -19,16 +20,18 @@ import java.time.format.DateTimeFormatter
 class CarAppScreen(
     carContext: CarContext,
     private val repository: LastFmRepository,
-    private val username: String?
+    private val settings: Settings
 ) : Screen(carContext) {
     // Time to dwell on each item when displaying a carousel of text data
     val dwellTime: Duration = Duration.ofSeconds(8)
     // Interval to refetch current track info
     val refetchTime: Duration = Duration.ofSeconds(10)
 
+    private var username: String? = null
     private var currentTrack: CurrentTrack? = null
 
     override fun onGetTemplate(): Template {
+        username = settings.username
         return createTemplate(currentTrack)
     }
 
@@ -128,7 +131,7 @@ class CarAppScreen(
         override fun run() {
             Thread {
                 if (username != null) {
-                    currentTrack = repository.getCurrentTrack(username)
+                    currentTrack = repository.getCurrentTrack(username ?: "")
                 }
             }.start()
             handler.postDelayed(this, refetchTime.toMillis())
