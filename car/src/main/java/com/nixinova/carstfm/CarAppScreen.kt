@@ -111,7 +111,7 @@ class CarAppScreen(
         // Fetch current track
         override fun run() {
             Thread {
-                currentTrack = repository.getCurrentTrack(carContext, username)
+                currentTrack = repository.getCurrentTrack(username)
             }.start()
             handler.postDelayed(this, refetchTime.toMillis())
         }

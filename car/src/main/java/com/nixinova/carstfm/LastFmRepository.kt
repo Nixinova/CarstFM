@@ -1,6 +1,6 @@
 package com.nixinova.carstfm
 
-import androidx.car.app.CarContext
+import android.graphics.BitmapFactory
 import androidx.core.graphics.drawable.IconCompat
 import com.nixinova.carstfm.model.CurrentTrack
 import org.json.JSONArray
@@ -31,15 +31,12 @@ class LastFmRepository {
     }
 
     // call within a Thread
-    fun getCurrentTrack(carContext: CarContext, username: String): CurrentTrack? {
+    fun getCurrentTrack(username: String): CurrentTrack? {
         if (apiKey == null) {
             return null
         }
 
-        val latestTrackDetails = getLatestTrackDetails(username)
-        val track = latestTrackDetails.track
-        val artist = latestTrackDetails.artist
-        val album = latestTrackDetails.album
+        val (artist, album, track, image) = getLatestTrackDetails(username)
 
         val cached = cachedCurrentTrack
         if (
@@ -58,7 +55,7 @@ class LastFmRepository {
             trackName = track,
             artistName = artist,
             albumName = album,
-            albumArt = IconCompat.createWithResource(carContext, R.drawable.sample), // todo
+            albumArt = image,
             firstPlayed = trackPlays.earliest,
             lastPlayed = trackPlays.latest,
             tags = userTags,
@@ -68,7 +65,12 @@ class LastFmRepository {
         return currentTrack
     }
 
-    private data class LatestTrackDetails(val artist: String, val album: String, val track: String)
+    private data class LatestTrackDetails(
+        val artist: String,
+        val album: String,
+        val track: String,
+        val albumImage: IconCompat,
+    )
     private fun getLatestTrackDetails(username: String): LatestTrackDetails {
         val latestTrackResponse = callLastFmApi("method=user.getRecentTracks&limit=1", username)
         val latestTrackData = JSONObject(latestTrackResponse)
@@ -79,8 +81,13 @@ class LastFmRepository {
         val artist = latestTrackData.getJSONObject("artist").getString("#text")
         val album = latestTrackData.getJSONObject("album").getString("#text")
         val track = latestTrackData.getString("name")
+        val albumArtUrl = latestTrackData
+            .getJSONArray("image")
+            .getJSONObject(2)
+            .getString("#text")
+        val image = downloadImage(albumArtUrl)
 
-        return LatestTrackDetails(artist, album, track)
+        return LatestTrackDetails(artist, album, track, image)
     }
 
     private fun getTrackTags(username: String, artist: String, track: String): List<String> {
@@ -157,5 +164,12 @@ class LastFmRepository {
         } catch(_: IOException) {
             ""
         }
+    }
+
+    private fun downloadImage(url: String): IconCompat {
+        val bitmap = URL(url)
+            .openStream()
+            .use { BitmapFactory.decodeStream(it) }
+        return IconCompat.createWithBitmap(bitmap)
     }
 }
