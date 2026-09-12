@@ -6,6 +6,7 @@ import com.nixinova.carstfm.model.CurrentTrack
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
+import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
@@ -153,7 +154,7 @@ class LastFmRepository {
             connection.inputStream
                 .bufferedReader()
                 .use { it.readText() }
-        } catch(_: Error) {
+        } catch(_: IOException) {
             ""
         }
     }
