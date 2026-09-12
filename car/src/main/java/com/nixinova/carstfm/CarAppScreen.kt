@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter
 class CarAppScreen(
     carContext: CarContext,
     private val repository: LastFmRepository,
-    private val username: String
+    private val username: String?
 ) : Screen(carContext) {
     // Time to dwell on each item when displaying a carousel of text data
     val dwellTime: Duration = Duration.ofSeconds(8)
@@ -33,11 +33,16 @@ class CarAppScreen(
     }
 
     private fun createTemplate(currentTrack: CurrentTrack?): Template {
-        val pane = if (currentTrack == null) {
-            Pane.Builder().setLoading(true).build()
-        } else {
-            createPane(currentTrack)
-        }
+        val pane =
+            if (username == null) {
+                createNoUsernamePane()
+            }
+            else if (currentTrack == null) {
+                Pane.Builder().setLoading(true).build()
+            }
+            else {
+                createTrackPane(currentTrack)
+            }
 
         return PaneTemplate.Builder(pane)
             .setHeaderAction(Action.APP_ICON)
@@ -45,7 +50,18 @@ class CarAppScreen(
             .build()
     }
 
-    private fun createPane(currentTrack: CurrentTrack): Pane {
+    private fun createNoUsernamePane(): Pane {
+        return Pane.Builder()
+            .addRow(
+                Row.Builder()
+                    .setTitle("Username not specified")
+                    .addText("Please enter your Last.fm username in the mobile app")
+                    .build()
+            )
+            .build()
+    }
+
+    private fun createTrackPane(currentTrack: CurrentTrack): Pane {
         // A dummy number used in modulo operations below to denote which page of some data to view
         val carouselValue = (Instant.now().epochSecond.toInt() % 60) / dwellTime.seconds.toInt()
 
@@ -111,7 +127,9 @@ class CarAppScreen(
         // Fetch current track
         override fun run() {
             Thread {
-                currentTrack = repository.getCurrentTrack(username)
+                if (username != null) {
+                    currentTrack = repository.getCurrentTrack(username)
+                }
             }.start()
             handler.postDelayed(this, refetchTime.toMillis())
         }
