@@ -85,18 +85,13 @@ class CarAppScreen(
                     .setTitle("At a glance")
                     .addText(run {
                         val nPlays = currentTrack.plays.size
-                        if (carouselValue % 3 == 0)
-                            "First played: " + (
-                                if (nPlays == 0) "N/A"
-                                else formatDate(currentTrack.plays[0])
-                            )
-                        else if (carouselValue % 3 == 1)
-                            "Last played: " + (
-                                if (nPlays == 0) "N/A"
-                                else formatDate(currentTrack.plays[nPlays - 1])
-                            )
-                        else
-                            "Times played: " + currentTrack.plays.size
+                        if (nPlays == 0) {
+                            "Never played"
+                        } else {
+                            val firstPlayed = formatDate(currentTrack.plays[0])
+                            val lastPlayed = formatDate(currentTrack.plays[nPlays - 1])
+                            "Plays: $nPlays ($firstPlayed - $lastPlayed)"
+                        }
                     })
                     .addText("Tags: " + (if (currentTrack.tags.isEmpty()) "None" else run {
                         val length = currentTrack.tags.size
