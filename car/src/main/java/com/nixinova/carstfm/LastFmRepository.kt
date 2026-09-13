@@ -6,7 +6,6 @@ import com.nixinova.carstfm.model.CurrentTrack
 import com.nixinova.carstfm.model.TrackDetails
 import org.json.JSONArray
 import org.json.JSONObject
-import org.json.JSONTokener
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -19,24 +18,13 @@ import java.time.format.DateTimeFormatterBuilder
 import java.util.Locale
 
 class LastFmRepository {
-    private val apiKeyUrl = "https://www.nixinova.com/.netlify/functions/lastfm-token"
+    private val apiKey = "0ff9dba2068dd35752b321c6412f86c5"
     private val apiUrlBase = "https://ws.audioscrobbler.com/2.0/"
 
-    private var apiKey: String? = null
     private var cachedCurrentTrack: CurrentTrack? = null
-
-    init {
-        Thread {
-            getApiKey()
-        }.start()
-    }
 
     // call within a Thread
     fun getCurrentTrack(username: String): CurrentTrack? {
-        if (apiKey == null) {
-            return null
-        }
-
         val (track, image) = getLatestTrackDetails(username)
 
         val cached = cachedCurrentTrack
@@ -117,11 +105,6 @@ class LastFmRepository {
 
     private fun callLastFmApi(params: String, username: String): String {
         return fetch("$apiUrlBase?$params&api_key=$apiKey&user=$username&format=json")
-    }
-
-    private fun getApiKey() {
-        val response = fetch(apiKeyUrl)
-        apiKey = JSONTokener(response).nextValue() as String
     }
 
     private fun encode(string: String): String {
