@@ -1,5 +1,7 @@
 # CarstFM
 
+![](mobile/src/main/res/mipmap-hdpi/ic_launcher.png)
+
 See information about your currently playing track from Last.fm as an Android Auto car dashboard.
 
 ## Installation
