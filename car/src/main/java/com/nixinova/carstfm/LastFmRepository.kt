@@ -3,6 +3,7 @@ package com.nixinova.carstfm
 import android.graphics.BitmapFactory
 import androidx.core.graphics.drawable.IconCompat
 import com.nixinova.carstfm.model.CurrentTrack
+import com.nixinova.carstfm.model.TrackDetails
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
@@ -36,25 +37,18 @@ class LastFmRepository {
             return null
         }
 
-        val (artist, album, track, image) = getLatestTrackDetails(username)
+        val (track, image) = getLatestTrackDetails(username)
 
         val cached = cachedCurrentTrack
-        if (
-            cached != null
-            && cached.trackName == track
-            && cached.artistName == artist
-            && cached.albumName == album
-        ) {
+        if (cached != null && cached.track == track) {
             return cachedCurrentTrack
         }
 
-        val userTags = getTrackTags(username, artist, track)
-        val trackPlays = scrapePageForPlayTimes(username, artist, track)
+        val userTags = getTrackTags(username, track)
+        val trackPlays = scrapePageForPlayTimes(username, track)
 
         val currentTrack = CurrentTrack(
-            trackName = track,
-            artistName = artist,
-            albumName = album,
+            track = track,
             albumArt = image,
             plays = trackPlays.sorted(),
             tags = userTags,
@@ -64,12 +58,7 @@ class LastFmRepository {
         return currentTrack
     }
 
-    private data class LatestTrackDetails(
-        val artist: String,
-        val album: String,
-        val track: String,
-        val albumImage: IconCompat,
-    )
+    private data class LatestTrackDetails(val track: TrackDetails, val albumImage: IconCompat)
     private fun getLatestTrackDetails(username: String): LatestTrackDetails {
         val latestTrackResponse = callLastFmApi("method=user.getRecentTracks&limit=1", username)
         val latestTrackData = JSONObject(latestTrackResponse)
@@ -79,19 +68,19 @@ class LastFmRepository {
 
         val artist = latestTrackData.getJSONObject("artist").getString("#text")
         val album = latestTrackData.getJSONObject("album").getString("#text")
-        val track = latestTrackData.getString("name")
+        val song = latestTrackData.getString("name")
         val albumArtUrl = latestTrackData
             .getJSONArray("image")
             .getJSONObject(2)
             .getString("#text")
         val image = downloadImage(albumArtUrl)
 
-        return LatestTrackDetails(artist, album, track, image)
+        return LatestTrackDetails(TrackDetails(artist, album, song), image)
     }
 
-    private fun getTrackTags(username: String, artist: String, track: String): List<String> {
+    private fun getTrackTags(username: String, track: TrackDetails): List<String> {
         val userTagsResponse = callLastFmApi(
-            "method=track.getTags&artist=${encode(artist)}&track=${encode(track)}",
+            "method=track.getTags&artist=${encode(track.artist)}&track=${encode(track.song)}",
             username
         )
         val userTagsObjects = JSONObject(userTagsResponse)
@@ -104,9 +93,9 @@ class LastFmRepository {
         return userTags
     }
 
-    private fun scrapePageForPlayTimes(username: String, artist: String, track: String): Array<Instant> {
+    private fun scrapePageForPlayTimes(username: String, track: TrackDetails): Array<Instant> {
         val url = "https://www.last.fm/user/${username}/library/music/" +
-                "${encode(artist)}/_/${encode(track)}?_pjax=%23content"
+                "${encode(track.artist)}/_/${encode(track.song)}?_pjax=%23content"
         val response = fetchHtml(url)
         val dateStrs = Regex("""<span title="([^">]+?)">""")
             .findAll(response)
