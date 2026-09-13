@@ -6,7 +6,7 @@ import java.time.Instant
 data class CurrentTrack(
     val track: TrackDetails,
     val time: Instant?, // Null if currently playing
-    val albumArt: IconCompat,
+    val albumArt: IconCompat?,
     val plays: List<Instant>?,
     val tags: List<String>,
 )

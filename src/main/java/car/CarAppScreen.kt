@@ -72,15 +72,18 @@ class CarAppScreen(
         val carouselValue = (Instant.now().epochSecond.toInt() % 60) / dwellTime.seconds.toInt()
 
         return Pane.Builder()
-            .setImage(
-                CarIcon.Builder(currentTrack.albumArt)
-                    .build()
-            )
+            .apply {
+                if (currentTrack.albumArt != null)
+                    setImage(
+                        CarIcon.Builder(currentTrack.albumArt)
+                            .build()
+                    )
+            }
             .addRow(
                 Row.Builder()
                     .setTitle(currentTrack.track.song)
                     .addText(
-                        if (carouselValue % 2 == 0)
+                        if (carouselValue % 2 == 0 || currentTrack.track.album == null)
                             "by " + currentTrack.track.artist
                         else
                             "on " + currentTrack.track.album

@@ -50,7 +50,7 @@ class LastFmRepository {
     private data class LatestTrackDetails(
         val track: TrackDetails,
         val time: Instant?,
-        val albumImage: IconCompat,
+        val albumImage: IconCompat?,
     )
     private fun getLatestTrackDetails(username: String): LatestTrackDetails {
         val latestTrackResponse = callLastFmApi("method=user.getRecentTracks&limit=1", username)
@@ -60,7 +60,7 @@ class LastFmRepository {
             .getJSONObject(0)
 
         val artist = latestTrackData.getJSONObject("artist").getString("#text")
-        val album = latestTrackData.getJSONObject("album").getString("#text")
+        val album = latestTrackData.getJSONObject("album").getString("#text").ifEmpty { null }
         val song = latestTrackData.getString("name")
         val timeUtcSecs = latestTrackData.optJSONObject("date")?.getString("uts")?.toLong()
         val time = if (timeUtcSecs == null) null else Instant.ofEpochSecond(timeUtcSecs)
@@ -68,7 +68,8 @@ class LastFmRepository {
             .getJSONArray("image")
             .getJSONObject(2)
             .getString("#text")
-        val image = downloadImage(albumArtUrl)
+            .ifEmpty { null }
+        val image = if (albumArtUrl == null) null else downloadImage(albumArtUrl)
 
         return LatestTrackDetails(
             TrackDetails(artist, album, song),
