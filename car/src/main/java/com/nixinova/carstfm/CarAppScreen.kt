@@ -76,8 +76,8 @@ class CarAppScreen(
             .addRow(
                 Row.Builder()
                     .setTitle(currentTrack.trackName)
-                    .addText(currentTrack.artistName)
-                    .addText(currentTrack.albumName)
+                    .addText("by " + currentTrack.artistName)
+                    .addText("on " + currentTrack.albumName)
                     .build()
             )
             .addRow(
