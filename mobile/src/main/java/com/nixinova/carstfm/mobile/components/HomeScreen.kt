@@ -3,6 +3,7 @@ package com.nixinova.carstfm.mobile.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +15,7 @@ import com.nixinova.carstfm.model.Settings
 fun HomeScreen(settings: Settings, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
+            .padding(16.dp)
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {

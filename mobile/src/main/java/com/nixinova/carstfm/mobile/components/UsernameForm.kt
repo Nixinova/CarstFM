@@ -27,6 +27,8 @@ fun UsernameForm(settings: Settings) {
             },
             value = inputUsername,
             onValueChange = { inputUsername = it },
+            modifier = Modifier
+                .fillMaxWidth()
         )
 
         Button(
@@ -35,7 +37,8 @@ fun UsernameForm(settings: Settings) {
                 savedUsername = inputUsername // update state to refresh UI
             },
             enabled = inputUsername != savedUsername,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
             Text(
                 text = if (inputUsername == savedUsername) "Saved" else "Save"

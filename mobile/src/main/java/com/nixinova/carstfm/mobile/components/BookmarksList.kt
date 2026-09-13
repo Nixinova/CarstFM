@@ -4,7 +4,9 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -18,8 +20,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.nixinova.carstfm.mobile.R
 import com.nixinova.carstfm.model.Settings
@@ -42,12 +47,16 @@ fun BookmarksList(settings: Settings) {
         }
 
         bookmarks.forEach {
-            Row {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
                 Text(
                     text = "${it.song} by ${it.artist}",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
-                        .padding(6.dp)
+                        .weight(1f)
+                        .padding(horizontal = 8.dp, vertical = 16.dp)
                 )
 
                 Button(
@@ -55,12 +64,15 @@ fun BookmarksList(settings: Settings) {
                         settings.bookmarks -= it
                         refreshCounter++
                     },
+                    contentPadding = PaddingValues.Zero,
+                    modifier = Modifier
+                        .padding(0.dp)
                 ) {
                     Image(
                         painter = painterResource(R.drawable.unbookmark_icon),
                         contentDescription = "Bookmarked",
                         modifier = Modifier
-                            .size(20.dp, 20.dp)
+                            .size(28.dp)
                     )
                 }
             }
