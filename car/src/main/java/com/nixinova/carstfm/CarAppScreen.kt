@@ -87,7 +87,7 @@ class CarAppScreen(
                                     IconCompat.createWithResource(
                                         carContext,
                                         if (settings.bookmarks.contains(currentTrack.track))
-                                            R.drawable.bookmarked_icon
+                                            R.drawable.unbookmark_icon
                                         else
                                             R.drawable.bookmark_icon
                                     )
