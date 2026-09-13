@@ -10,6 +10,7 @@ import androidx.car.app.model.Pane
 import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
+import androidx.core.graphics.drawable.IconCompat
 import com.nixinova.carstfm.model.CurrentTrack
 import com.nixinova.carstfm.model.Settings
 import java.time.Duration
@@ -78,6 +79,29 @@ class CarAppScreen(
                     .setTitle(currentTrack.track.song)
                     .addText("by " + currentTrack.track.artist)
                     .addText("on " + currentTrack.track.album)
+                    .addAction(
+                        Action.Builder()
+                            .setTitle("Bookmark")
+                            .setIcon(
+                                CarIcon.Builder(
+                                    IconCompat.createWithResource(
+                                        carContext,
+                                        if (settings.bookmarks.contains(currentTrack.track))
+                                            R.drawable.bookmarked_icon
+                                        else
+                                            R.drawable.bookmark_icon
+                                    )
+                                ).build()
+                            )
+                            .setOnClickListener {
+                                if (settings.bookmarks.contains(currentTrack.track))
+                                    settings.bookmarks -= currentTrack.track
+                                else
+                                    settings.bookmarks += currentTrack.track
+                                invalidate() // refresh UI
+                            }
+                            .build()
+                    )
                     .build()
             )
             .addRow(

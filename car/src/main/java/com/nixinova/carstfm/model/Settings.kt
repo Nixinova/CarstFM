@@ -10,4 +10,23 @@ class Settings(context: Context) {
         set(value) {
             prefs.edit().putString("username", value).apply()
         }
+
+    private val bookmarksDelimiter = ","
+    private val storedTrackDelimiter = "/"
+    var bookmarks: List<TrackDetails>
+        get() = (prefs.getString("bookmarks", "") ?: "")
+            .split(bookmarksDelimiter)
+            .filter { it.isNotEmpty() }
+            .map { deserialiseTrack(it) }
+        set(value) = prefs.edit().putString(
+            "bookmarks",
+            value.joinToString(bookmarksDelimiter) { serialiseTrack((it)) }
+        ).apply()
+    private fun deserialiseTrack(str: String): TrackDetails {
+        val parts = str.split(storedTrackDelimiter)
+        return TrackDetails(parts[0], parts[1], parts[2])
+    }
+    private fun serialiseTrack(track: TrackDetails): String {
+        return "${track.artist}$storedTrackDelimiter${track.album}$storedTrackDelimiter${track.song}"
+    }
 }
