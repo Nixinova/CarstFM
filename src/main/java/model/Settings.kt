@@ -7,7 +7,10 @@ class Settings(context: Context) {
     private val prefs = context.getSharedPreferences("carstfm", Context.MODE_PRIVATE)
 
     private fun getPref(pref: String) = prefs.getString(pref, null)
-    private fun setPref(pref: String, value: String?) = prefs.edit { putString(pref, value) }
+    private fun setPref(pref: String, value: String?) {
+        val newValue = if (value.isNullOrEmpty()) null else value.trim()
+        prefs.edit { putString(pref, newValue) }
+    }
 
     private val keys = object {
         val username = "username"
