@@ -1,4 +1,4 @@
-package com.nixinova.carstfm
+package com.nixinova.carstfm.car
 
 import androidx.car.app.CarAppService as AppService
 import androidx.car.app.Session

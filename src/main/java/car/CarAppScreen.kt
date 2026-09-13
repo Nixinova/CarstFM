@@ -1,4 +1,4 @@
-package com.nixinova.carstfm
+package com.nixinova.carstfm.car
 
 import android.os.Handler
 import android.os.Looper
@@ -11,6 +11,8 @@ import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
 import androidx.core.graphics.drawable.IconCompat
+import com.nixinova.carstfm.repository.LastFmRepository
+import com.nixinova.carstfm.R
 import com.nixinova.carstfm.model.CurrentTrack
 import com.nixinova.carstfm.model.Settings
 import java.time.Duration

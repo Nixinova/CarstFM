@@ -23,5 +23,3 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "CarstFM"
-include(":mobile")
-include(":car")

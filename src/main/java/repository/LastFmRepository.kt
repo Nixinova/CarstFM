@@ -1,4 +1,4 @@
-package com.nixinova.carstfm
+package com.nixinova.carstfm.repository
 
 import android.graphics.BitmapFactory
 import androidx.core.graphics.drawable.IconCompat
