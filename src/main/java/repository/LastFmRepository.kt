@@ -25,7 +25,7 @@ class LastFmRepository {
 
     // call within a Thread
     fun getCurrentTrack(username: String): CurrentTrack? {
-        val (track, image) = getLatestTrackDetails(username)
+        val (track, time, image) = getLatestTrackDetails(username)
 
         val cached = cachedCurrentTrack
         if (cached != null && cached.track == track) {
@@ -37,6 +37,7 @@ class LastFmRepository {
 
         val currentTrack = CurrentTrack(
             track = track,
+            time = time,
             albumArt = image,
             plays = trackPlays?.sorted(),
             tags = userTags,
@@ -46,7 +47,11 @@ class LastFmRepository {
         return currentTrack
     }
 
-    private data class LatestTrackDetails(val track: TrackDetails, val albumImage: IconCompat)
+    private data class LatestTrackDetails(
+        val track: TrackDetails,
+        val time: Instant?,
+        val albumImage: IconCompat,
+    )
     private fun getLatestTrackDetails(username: String): LatestTrackDetails {
         val latestTrackResponse = callLastFmApi("method=user.getRecentTracks&limit=1", username)
         val latestTrackData = JSONObject(latestTrackResponse)
@@ -57,13 +62,19 @@ class LastFmRepository {
         val artist = latestTrackData.getJSONObject("artist").getString("#text")
         val album = latestTrackData.getJSONObject("album").getString("#text")
         val song = latestTrackData.getString("name")
+        val timeUtcSecs = latestTrackData.optJSONObject("date")?.getString("uts")?.toLong()
+        val time = if (timeUtcSecs == null) null else Instant.ofEpochSecond(timeUtcSecs)
         val albumArtUrl = latestTrackData
             .getJSONArray("image")
             .getJSONObject(2)
             .getString("#text")
         val image = downloadImage(albumArtUrl)
 
-        return LatestTrackDetails(TrackDetails(artist, album, song), image)
+        return LatestTrackDetails(
+            TrackDetails(artist, album, song),
+            time,
+            image,
+        )
     }
 
     private fun getTrackTags(username: String, track: TrackDetails): List<String> {

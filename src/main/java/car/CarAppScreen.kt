@@ -79,8 +79,18 @@ class CarAppScreen(
             .addRow(
                 Row.Builder()
                     .setTitle(currentTrack.track.song)
-                    .addText("by " + currentTrack.track.artist)
-                    .addText("on " + currentTrack.track.album)
+                    .addText(
+                        if (carouselValue % 2 == 0)
+                            "by " + currentTrack.track.artist
+                        else
+                            "on " + currentTrack.track.album
+                    )
+                    .addText(
+                        if (currentTrack.time == null)
+                            "Now playing"
+                        else
+                            "Played at " + formatDateTime(currentTrack.time, "h:mma, d MMM")
+                    )
                     .addAction(
                         Action.Builder()
                             .setTitle("Bookmark")
@@ -118,8 +128,9 @@ class CarAppScreen(
                                 "Never played"
                             }
                             else -> {
-                                val firstPlayed = formatDate(currentTrack.plays[0])
-                                val lastPlayed = formatDate(currentTrack.plays[nPlays - 1])
+                                val format = "d MMM yyyy"
+                                val firstPlayed = formatDateTime(currentTrack.plays[0], format)
+                                val lastPlayed = formatDateTime(currentTrack.plays[nPlays - 1], format)
                                 "Plays: $nPlays ($firstPlayed - $lastPlayed)"
                             }
                         }
@@ -136,8 +147,8 @@ class CarAppScreen(
             .build()
     }
 
-    private fun formatDate(date: Instant): String {
-        val formatter = DateTimeFormatter.ofPattern("d MMM yyyy")
+    private fun formatDateTime(date: Instant, pattern: String): String {
+        val formatter = DateTimeFormatter.ofPattern(pattern)
             .withZone(ZoneId.systemDefault())
         return formatter.format(date)
     }
