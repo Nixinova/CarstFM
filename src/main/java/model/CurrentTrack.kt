@@ -5,8 +5,12 @@ import java.time.Instant
 
 data class CurrentTrack(
     val track: TrackDetails,
-    val time: Instant?, // Null if currently playing
+    // Null if currently playing
+    val time: Instant?,
+    // Null if no album present
     val albumArt: IconCompat?,
+    // Null if failed to load
     val plays: List<Instant>?,
-    val tags: List<String>,
+    // Null if failed to load
+    val tags: List<String>?,
 )

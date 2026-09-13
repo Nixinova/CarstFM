@@ -142,13 +142,21 @@ class CarAppScreen(
                             }
                         }
                     })
-                    .addText("Tags: " + (if (currentTrack.tags.isEmpty()) "None" else run {
-                        val length = currentTrack.tags.size
-                        val startIndex =  carouselValue % length
-                        val sortedTags = currentTrack.tags.sorted()
-                        val subList = (sortedTags + sortedTags).slice(IntRange(startIndex, length * 2 - 1))
-                        subList.joinToString(", ")
-                    }))
+                    .addText(
+                        if (currentTrack.tags == null) {
+                            "Tags failed to load"
+                        }
+                        else if (currentTrack.tags.isEmpty()){
+                            "Untagged"
+                        }
+                        else {
+                            val length = currentTrack.tags.size
+                            val startIndex =  carouselValue % length
+                            val sortedTags = currentTrack.tags.sorted()
+                            val subList = (sortedTags + sortedTags).slice(IntRange(startIndex, length * 2 - 1))
+                            "Tags: " + subList.joinToString(", ")
+                        }
+                    )
                     .build()
             )
             .build()

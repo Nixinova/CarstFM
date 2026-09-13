@@ -1,6 +1,7 @@
 package com.nixinova.carstfm.repository
 
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.core.graphics.drawable.IconCompat
 import com.nixinova.carstfm.model.CurrentTrack
 import com.nixinova.carstfm.model.TrackDetails
@@ -26,6 +27,7 @@ class LastFmRepository {
     // call within a Thread
     fun getCurrentTrack(username: String): CurrentTrack? {
         val (track, time, image) = getLatestTrackDetails(username)
+            ?: return null
 
         val cached = cachedCurrentTrack
         if (cached != null && cached.track == track) {
@@ -52,8 +54,10 @@ class LastFmRepository {
         val time: Instant?,
         val albumImage: IconCompat?,
     )
-    private fun getLatestTrackDetails(username: String): LatestTrackDetails {
+    private fun getLatestTrackDetails(username: String): LatestTrackDetails? {
         val latestTrackResponse = callLastFmApi("method=user.getRecentTracks&limit=1", username)
+            ?: return null
+
         val latestTrackData = JSONObject(latestTrackResponse)
             .getJSONObject("recenttracks")
             .getJSONArray("track")
@@ -78,11 +82,13 @@ class LastFmRepository {
         )
     }
 
-    private fun getTrackTags(username: String, track: TrackDetails): List<String> {
+    private fun getTrackTags(username: String, track: TrackDetails): List<String>? {
         val userTagsResponse = callLastFmApi(
             "method=track.getTags&artist=${encode(track.artist)}&track=${encode(track.song)}",
             username
         )
+            ?: return null
+
         val userTagsObjects = JSONObject(userTagsResponse)
             .getJSONObject("tags")
             .optJSONArray("tag")
@@ -115,8 +121,18 @@ class LastFmRepository {
         return dates
     }
 
-    private fun callLastFmApi(params: String, username: String): String {
-        return fetch("$apiUrlBase?$params&api_key=$apiKey&user=$username&format=json")
+    private fun callLastFmApi(params: String, username: String): String? {
+        val url = "$apiUrlBase?$params&api_key=$apiKey&user=$username&format=json"
+        val response = fetch(url)
+        try {
+            val hasError = JSONObject(response).has("error")
+            if (hasError) {
+                return null
+            }
+            return response
+        } catch (_: Exception) {
+            return null
+        }
     }
 
     private fun encode(string: String): String {
