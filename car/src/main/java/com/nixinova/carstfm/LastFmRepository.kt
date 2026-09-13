@@ -49,15 +49,14 @@ class LastFmRepository {
         }
 
         val userTags = getTrackTags(username, artist, track)
-        val trackPlays = getTrackPlays(username, artist, track)
+        val trackPlays = scrapePageForPlayTimes(username, artist, track)
 
         val currentTrack = CurrentTrack(
             trackName = track,
             artistName = artist,
             albumName = album,
             albumArt = image,
-            firstPlayed = trackPlays.earliest,
-            lastPlayed = trackPlays.latest,
+            plays = trackPlays.sorted(),
             tags = userTags,
         )
         cachedCurrentTrack = currentTrack
@@ -105,14 +104,6 @@ class LastFmRepository {
         return userTags
     }
 
-    private data class TrackPlays(val earliest: Instant?, val latest: Instant?)
-    private fun getTrackPlays(username: String, artist: String, track: String): TrackPlays {
-        val trackPlays = scrapePageForPlayTimes(username, artist, track)
-        if (trackPlays.isEmpty()) {
-            return TrackPlays(null, null)
-        }
-        return TrackPlays(trackPlays[0], trackPlays[trackPlays.size - 1])
-    }
     private fun scrapePageForPlayTimes(username: String, artist: String, track: String): Array<Instant> {
         val url = "https://www.last.fm/user/${username}/library/music/" +
                 "${encode(artist)}/_/${encode(track)}?_pjax=%23content"

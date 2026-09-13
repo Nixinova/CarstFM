@@ -83,12 +83,21 @@ class CarAppScreen(
             .addRow(
                 Row.Builder()
                     .setTitle("At a glance")
-                    .addText(
-                        if (carouselValue % 2 == 0)
-                            "First played: " + (formatDate(currentTrack.firstPlayed) ?: "N/A")
+                    .addText(run {
+                        val nPlays = currentTrack.plays.size
+                        if (carouselValue % 3 == 0)
+                            "First played: " + (
+                                if (nPlays == 0) "N/A"
+                                else formatDate(currentTrack.plays[0])
+                            )
+                        else if (carouselValue % 3 == 1)
+                            "Last played: " + (
+                                if (nPlays == 0) "N/A"
+                                else formatDate(currentTrack.plays[nPlays - 1])
+                            )
                         else
-                            "Last played: " + (formatDate(currentTrack.lastPlayed) ?: "N/A")
-                    )
+                            "Times played: " + currentTrack.plays.size
+                    })
                     .addText("Tags: " + (if (currentTrack.tags.isEmpty()) "None" else run {
                         val length = currentTrack.tags.size
                         val startIndex =  carouselValue % length
@@ -101,10 +110,7 @@ class CarAppScreen(
             .build()
     }
 
-    private fun formatDate(date: Instant?): String? {
-        if (date == null) {
-            return null
-        }
+    private fun formatDate(date: Instant): String {
         val formatter = DateTimeFormatter.ofPattern("d MMM yyyy")
             .withZone(ZoneId.systemDefault())
         return formatter.format(date)
