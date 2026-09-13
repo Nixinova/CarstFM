@@ -108,13 +108,18 @@ class CarAppScreen(
                 Row.Builder()
                     .setTitle("At a glance")
                     .addText(run {
-                        val nPlays = currentTrack.plays.size
-                        if (nPlays == 0) {
-                            "Never played"
-                        } else {
-                            val firstPlayed = formatDate(currentTrack.plays[0])
-                            val lastPlayed = formatDate(currentTrack.plays[nPlays - 1])
-                            "Plays: $nPlays ($firstPlayed - $lastPlayed)"
+                        when (val nPlays = currentTrack.plays?.size) {
+                            null -> {
+                                "Plays failed to load"
+                            }
+                            0 -> {
+                                "Never played"
+                            }
+                            else -> {
+                                val firstPlayed = formatDate(currentTrack.plays[0])
+                                val lastPlayed = formatDate(currentTrack.plays[nPlays - 1])
+                                "Plays: $nPlays ($firstPlayed - $lastPlayed)"
+                            }
                         }
                     })
                     .addText("Tags: " + (if (currentTrack.tags.isEmpty()) "None" else run {

@@ -50,7 +50,7 @@ class LastFmRepository {
         val currentTrack = CurrentTrack(
             track = track,
             albumArt = image,
-            plays = trackPlays.sorted(),
+            plays = trackPlays?.sorted(),
             tags = userTags,
         )
         cachedCurrentTrack = currentTrack
@@ -93,10 +93,12 @@ class LastFmRepository {
         return userTags
     }
 
-    private fun scrapePageForPlayTimes(username: String, track: TrackDetails): Array<Instant> {
+    private fun scrapePageForPlayTimes(username: String, track: TrackDetails): Array<Instant>? {
         val url = "https://www.last.fm/user/${username}/library/music/" +
                 "${encode(track.artist)}/_/${encode(track.song)}?_pjax=%23content"
         val response = fetchHtml(url)
+            ?: return null
+
         val dateStrs = Regex("""<span title="([^">]+?)">""")
             .findAll(response)
             .map { it.groupValues[1] }
@@ -133,7 +135,7 @@ class LastFmRepository {
             .use { it.readText() }
     }
 
-    private fun fetchHtml(url: String): String {
+    private fun fetchHtml(url: String): String? {
         val connection = URL(url).openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
         connection.setRequestProperty("User-Agent", "CarstFM/1.0 (https://github.com/Nixinova/CarstFM)")
@@ -142,7 +144,7 @@ class LastFmRepository {
                 .bufferedReader()
                 .use { it.readText() }
         } catch(_: IOException) {
-            ""
+            null
         }
     }
 
