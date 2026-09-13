@@ -123,6 +123,7 @@ class CarAppScreen(
                 Row.Builder()
                     .setTitle("At a glance")
                     .addText(run {
+                        val dateFormat = "d MMM yyyy"
                         when (val nPlays = currentTrack.plays?.size) {
                             null -> {
                                 "Plays failed to load"
@@ -130,10 +131,13 @@ class CarAppScreen(
                             0 -> {
                                 "Never played"
                             }
+                            1 -> {
+                                val played = formatDateTime(currentTrack.plays[0], dateFormat)
+                                "Plays: 1 ($played)"
+                            }
                             else -> {
-                                val format = "d MMM yyyy"
-                                val firstPlayed = formatDateTime(currentTrack.plays[0], format)
-                                val lastPlayed = formatDateTime(currentTrack.plays[nPlays - 1], format)
+                                val firstPlayed = formatDateTime(currentTrack.plays[0], dateFormat)
+                                val lastPlayed = formatDateTime(currentTrack.plays[nPlays - 1], dateFormat)
                                 "Plays: $nPlays ($firstPlayed - $lastPlayed)"
                             }
                         }
