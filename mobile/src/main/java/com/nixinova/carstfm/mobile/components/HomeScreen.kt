@@ -19,7 +19,7 @@ fun HomeScreen(settings: Settings, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = "CarstFM",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineLarge,
         )
 
         Text(
@@ -27,5 +27,6 @@ fun HomeScreen(settings: Settings, modifier: Modifier = Modifier) {
         )
 
         UsernameForm(settings)
+        BookmarksList(settings)
     }
 }
