@@ -152,7 +152,7 @@ class CarAppScreen(
                         else {
                             val length = currentTrack.tags.size
                             val startIndex =  carouselValue % length
-                            val sortedTags = currentTrack.tags.sorted()
+                            val sortedTags = currentTrack.tags.sortedBy { it.lowercase() }
                             val subList = (sortedTags + sortedTags).slice(IntRange(startIndex, length * 2 - 1))
                             "Tags: " + subList.joinToString(", ")
                         }
