@@ -1,27 +1,34 @@
 package com.nixinova.carstfm.model
 
 import android.content.Context
+import androidx.core.content.edit
 
 class Settings(context: Context) {
     private val prefs = context.getSharedPreferences("carstfm", Context.MODE_PRIVATE)
 
-    var username: String?
-        get() = prefs.getString("username", null)
-        set(value) {
-            prefs.edit().putString("username", value).apply()
-        }
+    private fun getPref(pref: String) = prefs.getString(pref, null)
+    private fun setPref(pref: String, value: String?) = prefs.edit { putString(pref, value) }
 
-    private val bookmarksDelimiter = ","
-    private val storedTrackDelimiter = "/"
+    private val keys = object {
+        val username = "username"
+        val bookmarks = "bookmarks"
+    }
+
+    var username: String?
+        get() = getPref(keys.username)
+        set(value) = setPref(keys.username, value)
+
     var bookmarks: List<TrackDetails>
-        get() = (prefs.getString("bookmarks", "") ?: "")
+        get() = (getPref(keys.bookmarks) ?: "")
             .split(bookmarksDelimiter)
             .filter { it.isNotEmpty() }
             .map { deserialiseTrack(it) }
-        set(value) = prefs.edit().putString(
-            "bookmarks",
-            value.joinToString(bookmarksDelimiter) { serialiseTrack((it)) }
-        ).apply()
+        set(value) {
+            val newValue = value.joinToString(bookmarksDelimiter) { serialiseTrack((it)) }
+            setPref(keys.bookmarks, newValue)
+        }
+    private val bookmarksDelimiter = ","
+    private val storedTrackDelimiter = "/"
     private fun deserialiseTrack(str: String): TrackDetails {
         val parts = str.split(storedTrackDelimiter)
         return TrackDetails(parts[0], parts[1], parts[2])
