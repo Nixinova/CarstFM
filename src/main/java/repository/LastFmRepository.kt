@@ -1,22 +1,15 @@
 package com.nixinova.carstfm.repository
 
 import android.graphics.BitmapFactory
-import android.util.Log
 import androidx.core.graphics.drawable.IconCompat
 import com.nixinova.carstfm.model.CurrentTrack
 import com.nixinova.carstfm.model.TrackDetails
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.IOException
-import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatterBuilder
-import java.util.Locale
 
 class LastFmRepository {
     private val apiKey = "0ff9dba2068dd35752b321c6412f86c5"
@@ -34,8 +27,8 @@ class LastFmRepository {
             return cachedCurrentTrack
         }
 
+        val trackPlays = getTrackPlays(username, track)
         val userTags = getTrackTags(username, track)
-        val trackPlays = scrapePageForPlayTimes(username, track)
 
         val currentTrack = CurrentTrack(
             track = track,
@@ -66,7 +59,7 @@ class LastFmRepository {
         val artist = latestTrackData.getJSONObject("artist").getString("#text")
         val album = latestTrackData.getJSONObject("album").getString("#text").ifEmpty { null }
         val song = latestTrackData.getString("name")
-        val timeUtcSecs = latestTrackData.optJSONObject("date")?.getString("uts")?.toLong()
+        val timeUtcSecs = latestTrackData.optJSONObject("date")?.getInt("uts")?.toLong()
         val time = if (timeUtcSecs == null) null else Instant.ofEpochSecond(timeUtcSecs)
         val albumArtUrl = latestTrackData
             .getJSONArray("image")
@@ -99,26 +92,28 @@ class LastFmRepository {
         return userTags
     }
 
-    private fun scrapePageForPlayTimes(username: String, track: TrackDetails): Array<Instant>? {
-        val url = "https://www.last.fm/user/${username}/library/music/" +
-                "${encode(track.artist)}/_/${encode(track.song)}?_pjax=%23content"
-        val response = fetchHtml(url)
+    private fun getTrackPlays(username: String, track: TrackDetails): Array<Instant>? {
+        val query = "method=user.getTrackScrobbles&artist=${encode(track.artist)}&track=${encode(track.song)}"
+        val scrobblesResponse = callLastFmApi(query, username)
             ?: return null
 
-        val dateStrs = Regex("""<span title="([^">]+?)">""")
-            .findAll(response)
-            .map { it.groupValues[1] }
-            .toList()
-        val timeFormat = "EEEE d MMM yyyy, h:mma"
-        val formatter = DateTimeFormatterBuilder()
-            .parseCaseInsensitive()
-            .appendPattern(timeFormat)
-            .toFormatter(Locale.ENGLISH)
-        val dates = dateStrs
-            .map { LocalDateTime.parse(it, formatter).atZone(ZoneId.systemDefault()).toInstant() }
+        val trackScrobbles = JSONObject(scrobblesResponse)
+            .getJSONObject("trackscrobbles")
+            .getJSONArray("track")
+
+        val dates = mutableListOf<Instant>()
+        for (i in 0..<trackScrobbles.length()) {
+            val uts = trackScrobbles
+                .getJSONObject(i)
+                .getJSONObject("date")
+                .getInt("uts")
+                .toLong()
+            dates += Instant.ofEpochSecond(uts)
+        }
+
+        return dates
             .sorted()
             .toTypedArray()
-        return dates
     }
 
     private fun callLastFmApi(params: String, username: String): String? {
@@ -144,19 +139,6 @@ class LastFmRepository {
             .openStream()
             .bufferedReader()
             .use { it.readText() }
-    }
-
-    private fun fetchHtml(url: String): String? {
-        val connection = URL(url).openConnection() as HttpURLConnection
-        connection.requestMethod = "GET"
-        connection.setRequestProperty("User-Agent", "CarstFM/1.0 (https://github.com/Nixinova/CarstFM)")
-        return try {
-            connection.inputStream
-                .bufferedReader()
-                .use { it.readText() }
-        } catch(_: IOException) {
-            null
-        }
     }
 
     private fun downloadImage(url: String): IconCompat {
