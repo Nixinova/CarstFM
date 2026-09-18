@@ -4,12 +4,7 @@
 
 See information about your currently playing track from Last.fm as an Android Auto car dashboard.
 
-## Installation
-
-This app must be sideloaded and is not in any app store.
-Get it installed onto your phone by following the [development setup](#Development) steps.
-
-**Requirements**
+## Requirements
 * Android 13 'Tiramisu' or above
 * Android Auto
 
