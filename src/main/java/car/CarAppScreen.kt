@@ -15,10 +15,9 @@ import com.nixinova.carstfm.repository.LastFmRepository
 import com.nixinova.carstfm.R
 import com.nixinova.carstfm.model.CurrentTrack
 import com.nixinova.carstfm.model.Settings
+import com.nixinova.carstfm.util.DateFormatting
 import java.time.Duration
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 class CarAppScreen(
     carContext: CarContext,
@@ -92,7 +91,7 @@ class CarAppScreen(
                         if (currentTrack.time == null)
                             "Now playing"
                         else
-                            "Played at " + formatDateTime(currentTrack.time, "h:mma, d MMM")
+                            "Played at " + DateFormatting.relDateTime(currentTrack.time)
                     )
                     .addAction(
                         Action.Builder()
@@ -123,7 +122,6 @@ class CarAppScreen(
                 Row.Builder()
                     .setTitle("At a glance")
                     .addText(run {
-                        val dateFormat = "d MMM yyyy"
                         when (val nPlays = currentTrack.plays?.size) {
                             null -> {
                                 "Plays failed to load"
@@ -132,12 +130,12 @@ class CarAppScreen(
                                 "Never played"
                             }
                             1 -> {
-                                val played = formatDateTime(currentTrack.plays[0], dateFormat)
+                                val played = DateFormatting.date(currentTrack.plays[0])
                                 "Plays: 1 ($played)"
                             }
                             else -> {
-                                val firstPlayed = formatDateTime(currentTrack.plays[0], dateFormat)
-                                val lastPlayed = formatDateTime(currentTrack.plays[nPlays - 1], dateFormat)
+                                val firstPlayed = DateFormatting.date(currentTrack.plays[0])
+                                val lastPlayed = DateFormatting.date(currentTrack.plays[nPlays - 1])
                                 "Plays: $nPlays ($firstPlayed - $lastPlayed)"
                             }
                         }
@@ -160,12 +158,6 @@ class CarAppScreen(
                     .build()
             )
             .build()
-    }
-
-    private fun formatDateTime(date: Instant, pattern: String): String {
-        val formatter = DateTimeFormatter.ofPattern(pattern)
-            .withZone(ZoneId.systemDefault())
-        return formatter.format(date)
     }
 
     private val handler = Handler(Looper.getMainLooper())
