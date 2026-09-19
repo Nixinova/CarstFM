@@ -1,4 +1,9 @@
 # Changelog
 
+## 1.0.1 (2)
+- Changed unbookmark icon.
+- Changed date/time display format.
+- Fixed fetching of plays.
+
 ## 1.0 (1)
 Initial Release-built APK of CarstFM.
