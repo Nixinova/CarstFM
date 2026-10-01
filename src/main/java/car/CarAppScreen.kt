@@ -205,19 +205,20 @@ class CarAppScreen(
         // Fetch current track
         override fun run() {
             Thread {
-                if (username != null) {
-                    var lastCurrentTrack = currentTrackResult?.valueOrNull?.track
-                    currentTrackResult = repository.getCurrentTrack(username!!)
-                    if (currentTrackResult?.valueOrNull?.track != lastCurrentTrack) {
-                        lastCurrentTrack = currentTrackResult!!.valueOrNull!!.track
+                var lastCurrentTrack = currentTrackResult?.valueOrNull?.track
+                var usernameVal = username
+                if (usernameVal != null) {
+                    currentTrackResult = repository.getCurrentTrack(usernameVal)
+                    var newCurrentTrack = currentTrackResult?.valueOrNull?.track
+                    if (newCurrentTrack != null && newCurrentTrack != lastCurrentTrack) {
                         // Refetch these
                         playsResult = null
                         Thread {
-                            playsResult = repository.getTrackPlays(username!!, currentTrackResult!!.value.track)
+                            playsResult = repository.getTrackPlays(usernameVal, newCurrentTrack)
                         }.start()
                         tagsResult = null
                         Thread {
-                            tagsResult = repository.getTrackTags(username!!, currentTrackResult!!.value.track)
+                            tagsResult = repository.getTrackTags(usernameVal, newCurrentTrack)
                         }.start()
                     }
                 }
