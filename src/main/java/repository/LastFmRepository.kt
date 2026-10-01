@@ -48,7 +48,12 @@ class LastFmRepository {
         val albumImage: IconCompat?,
     )
     private fun getLatestTrackDetails(username: String): LatestTrackDetails? {
-        val latestTrackResponse = callLastFmApi("method=user.getRecentTracks&limit=1", username)
+        val params = toParams(
+            "username" to username,
+            "method" to "user.getRecentTracks",
+            "limit" to "1",
+        )
+        val latestTrackResponse = callLastFmApi(params)
             ?: return null
 
         val latestTrackData = JSONObject(latestTrackResponse)
@@ -76,10 +81,13 @@ class LastFmRepository {
     }
 
     private fun getTrackTags(username: String, track: TrackDetails): List<String>? {
-        val userTagsResponse = callLastFmApi(
-            "method=track.getTags&artist=${encode(track.artist)}&track=${encode(track.song)}",
-            username
+        val params = toParams(
+            "username" to username,
+            "method" to "track.getTags",
+            "artist" to encode(track.artist),
+            "track" to encode(track.song),
         )
+        val userTagsResponse = callLastFmApi(params)
             ?: return null
 
         val userTagsObjects = JSONObject(userTagsResponse)
@@ -93,8 +101,13 @@ class LastFmRepository {
     }
 
     private fun getTrackPlays(username: String, track: TrackDetails): Array<Instant>? {
-        val query = "method=user.getTrackScrobbles&artist=${encode(track.artist)}&track=${encode(track.song)}"
-        val scrobblesResponse = callLastFmApi(query, username)
+        val params = toParams(
+            "username" to username,
+            "method" to "user.getTrackScrobbles",
+            "artist" to encode(track.artist),
+            "track" to encode(track.song),
+        )
+        val scrobblesResponse = callLastFmApi(params)
             ?: return null
 
         val trackScrobbles = JSONObject(scrobblesResponse)
@@ -116,8 +129,8 @@ class LastFmRepository {
             .toTypedArray()
     }
 
-    private fun callLastFmApi(params: String, username: String): String? {
-        val url = "$apiUrlBase?$params&api_key=$apiKey&user=$username&format=json"
+    private fun callLastFmApi(params: Map<String, String>): String? {
+        val url = apiUrlBase + "?" + params.map { "${it.key}=${it.value}" }.joinToString("&")
         val response = fetch(url)
         try {
             val hasError = JSONObject(response).has("error")
@@ -128,6 +141,16 @@ class LastFmRepository {
         } catch (_: Exception) {
             return null
         }
+    }
+
+    private fun toParams(vararg args: Pair<String, String>): Map<String, String> {
+        val params = mutableMapOf<String, String>()
+        for (arg in args) {
+            params[arg.first] = arg.second
+        }
+        params["api_key"] = apiKey
+        params["format"] = "json"
+        return params
     }
 
     private fun encode(string: String): String {
