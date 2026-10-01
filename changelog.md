@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed plays count maxing out at 50.
+
 ## 1.0.1 (2)
 - Changed unbookmark icon.
 - Changed date/time display format.

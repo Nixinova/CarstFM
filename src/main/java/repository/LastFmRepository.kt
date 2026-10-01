@@ -100,12 +100,15 @@ class LastFmRepository {
         return userTags
     }
 
-    private fun getTrackPlays(username: String, track: TrackDetails): Array<Instant>? {
+    private fun getTrackPlays(username: String, track: TrackDetails, page: Int = 1): Array<Instant>? {
+        val maxLimit = 200;
         val params = toParams(
             "username" to username,
             "method" to "user.getTrackScrobbles",
             "artist" to encode(track.artist),
             "track" to encode(track.song),
+            "limit" to maxLimit.toString(),
+            "page" to page.toString(),
         )
         val scrobblesResponse = callLastFmApi(params)
             ?: return null
@@ -122,6 +125,12 @@ class LastFmRepository {
                 .getInt("uts")
                 .toLong()
             dates += Instant.ofEpochSecond(uts)
+        }
+        if (trackScrobbles.length() == maxLimit) {
+            val recursedList = getTrackPlays(username, track, page + 1)?.toList()
+            if (recursedList != null) {
+                dates.addAll(recursedList)
+            }
         }
 
         return dates
