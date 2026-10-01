@@ -9,8 +9,4 @@ data class CurrentTrack(
     val time: Instant?,
     // Null if no album present
     val albumArt: IconCompat?,
-    // Null if failed to load
-    val plays: List<Instant>?,
-    // Null if failed to load
-    val tags: List<String>?,
 )

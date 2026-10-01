@@ -14,6 +14,7 @@ import androidx.core.graphics.drawable.IconCompat
 import com.nixinova.carstfm.repository.LastFmRepository
 import com.nixinova.carstfm.R
 import com.nixinova.carstfm.model.CurrentTrack
+import com.nixinova.carstfm.model.Result
 import com.nixinova.carstfm.model.Settings
 import com.nixinova.carstfm.util.DateFormatting
 import java.time.Duration
@@ -30,27 +31,32 @@ class CarAppScreen(
     val refetchTime: Duration = Duration.ofSeconds(10)
 
     private var username: String? = null
-    private var currentTrack: CurrentTrack? = null
-    private var latestError: String? = null
+    private var currentTrackResult: Result<CurrentTrack>? = null
+    private var playsResult: Result<Array<Instant>>? = null
+    private var tagsResult: Result<List<String>>? = null
 
     override fun onGetTemplate(): Template {
         username = settings.username
-        return createTemplate(currentTrack)
+        return createTemplate(currentTrackResult, playsResult, tagsResult)
     }
 
-    private fun createTemplate(currentTrack: CurrentTrack?): Template {
+    private fun createTemplate(
+        currentTrackResult: Result<CurrentTrack>?,
+        playsResult: Result<Array<Instant>>?,
+        tagsResult: Result<List<String>>?,
+    ): Template {
         val pane =
             if (username == null) {
                 createNoUsernamePane()
             }
-            else if (latestError != null) {
-                createErrorPane(latestError!!)
-            }
-            else if (currentTrack == null) {
+            else if (currentTrackResult == null) {
                 Pane.Builder().setLoading(true).build()
             }
+            else if (currentTrackResult.isError) {
+                createErrorPane(currentTrackResult.error)
+            }
             else {
-                createTrackPane(currentTrack)
+                createTrackPane(currentTrackResult.value, playsResult, tagsResult)
             }
 
         return PaneTemplate.Builder(pane)
@@ -81,7 +87,11 @@ class CarAppScreen(
             .build()
     }
 
-    private fun createTrackPane(currentTrack: CurrentTrack): Pane {
+    private fun createTrackPane(
+        currentTrack: CurrentTrack,
+        playsResult: Result<Array<Instant>>?,
+        tagsResult: Result<List<String>>?,
+    ): Pane {
         // A dummy number used in modulo operations below to denote which page of some data to view
         val carouselValue = (Instant.now().epochSecond.toInt() % 60) / dwellTime.seconds.toInt()
 
@@ -137,35 +147,41 @@ class CarAppScreen(
                 Row.Builder()
                     .setTitle("At a glance")
                     .addText(run {
-                        when (val nPlays = currentTrack.plays?.size) {
-                            null -> {
-                                "Plays failed to load"
-                            }
+                        if (playsResult == null) {
+                            "Plays loading..."
+                        }
+                        else if (playsResult.isError) {
+                            "Error: " + playsResult.error
+                        }
+                        else when (val nPlays = playsResult.value.size) {
                             0 -> {
                                 "Never played"
                             }
                             1 -> {
-                                val played = DateFormatting.date(currentTrack.plays[0])
+                                val played = DateFormatting.date(playsResult.value[0])
                                 "Plays: 1 ($played)"
                             }
                             else -> {
-                                val firstPlayed = DateFormatting.date(currentTrack.plays[0])
-                                val lastPlayed = DateFormatting.date(currentTrack.plays[nPlays - 1])
+                                val firstPlayed = DateFormatting.date(playsResult.value[0])
+                                val lastPlayed = DateFormatting.date(playsResult.value[nPlays - 1])
                                 "Plays: $nPlays ($firstPlayed - $lastPlayed)"
                             }
                         }
                     })
                     .addText(
-                        if (currentTrack.tags == null) {
-                            "Tags failed to load"
+                        if (tagsResult == null) {
+                            "Tags loading..."
                         }
-                        else if (currentTrack.tags.isEmpty()){
+                        else if (tagsResult.isError) {
+                            "Error: " + tagsResult.error
+                        }
+                        else if (tagsResult.value.isEmpty()){
                             "Untagged"
                         }
                         else {
-                            val length = currentTrack.tags.size
+                            val length = tagsResult.value.size
                             val startIndex =  carouselValue % length
-                            val sortedTags = currentTrack.tags.sortedBy { it.lowercase() }
+                            val sortedTags = tagsResult.value.sortedBy { it.lowercase() }
                             val subList = (sortedTags + sortedTags).slice(IntRange(startIndex, length * 2 - 1))
                             "Tags: " + subList.joinToString(", ")
                         }
@@ -190,11 +206,19 @@ class CarAppScreen(
         override fun run() {
             Thread {
                 if (username != null) {
-                    var trackResult = repository.getCurrentTrack(username ?: "")
-                    if (trackResult.isOk) {
-                        currentTrack = trackResult.value
-                    } else {
-                        latestError = trackResult.error
+                    var lastCurrentTrack = currentTrackResult?.valueOrNull?.track
+                    currentTrackResult = repository.getCurrentTrack(username!!)
+                    if (currentTrackResult?.valueOrNull?.track != lastCurrentTrack) {
+                        lastCurrentTrack = currentTrackResult!!.valueOrNull!!.track
+                        // Refetch these
+                        playsResult = null
+                        Thread {
+                            playsResult = repository.getTrackPlays(username!!, currentTrackResult!!.value.track)
+                        }.start()
+                        tagsResult = null
+                        Thread {
+                            tagsResult = repository.getTrackTags(username!!, currentTrackResult!!.value.track)
+                        }.start()
                     }
                 }
             }.start()

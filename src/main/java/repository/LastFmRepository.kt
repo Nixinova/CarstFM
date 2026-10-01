@@ -16,47 +16,14 @@ class LastFmRepository {
     private val apiKey = "0ff9dba2068dd35752b321c6412f86c5"
     private val apiUrlBase = "https://ws.audioscrobbler.com/2.0/"
 
-    private var cachedCurrentTrack: CurrentTrack? = null
-
-    // call within a Thread
-    fun getCurrentTrack(username: String): Result<CurrentTrack?> {
-        val (track, time, image) = getLatestTrackDetails(username).valueOrReturn {
-            return Result.Fail<CurrentTrack?>(it)
-        }
-
-        val cached = cachedCurrentTrack
-        if (cached != null && cached.track == track) {
-            return Result.Ok(cachedCurrentTrack)
-        }
-
-        val trackPlays = getTrackPlays(username, track).valueOrNull
-        val userTags = getTrackTags(username, track).valueOrNull
-
-        val currentTrack = CurrentTrack(
-            track = track,
-            time = time,
-            albumArt = image,
-            plays = trackPlays?.sorted(),
-            tags = userTags,
-        )
-        cachedCurrentTrack = currentTrack
-
-        return Result.Ok(currentTrack)
-    }
-
-    private data class LatestTrackDetails(
-        val track: TrackDetails,
-        val time: Instant?,
-        val albumImage: IconCompat?,
-    )
-    private fun getLatestTrackDetails(username: String): Result<LatestTrackDetails> {
+    fun getCurrentTrack(username: String): Result<CurrentTrack> {
         val params = toParams(
             "username" to username,
             "method" to "user.getRecentTracks",
             "limit" to "1",
         )
         val latestTrackResponse = callLastFmApi(params).valueOrReturn {
-            return Result.Fail<LatestTrackDetails>(it)
+            return Result.Fail<CurrentTrack>(it)
         }
 
         val latestTrackData = JSONObject(latestTrackResponse)
@@ -76,14 +43,14 @@ class LastFmRepository {
             .ifEmpty { null }
         val image = if (albumArtUrl == null) null else downloadImage(albumArtUrl)
 
-        return Result.Ok(LatestTrackDetails(
+        return Result.Ok(CurrentTrack(
             TrackDetails(artist, album, song),
             time,
             image,
         ))
     }
 
-    private fun getTrackTags(username: String, track: TrackDetails): Result<List<String>> {
+    fun getTrackTags(username: String, track: TrackDetails): Result<List<String>> {
         val params = toParams(
             "username" to username,
             "method" to "track.getTags",
@@ -104,7 +71,7 @@ class LastFmRepository {
         return Result.Ok(userTags)
     }
 
-    private fun getTrackPlays(username: String, track: TrackDetails, page: Int = 1): Result<Array<Instant>> {
+    fun getTrackPlays(username: String, track: TrackDetails, page: Int = 1): Result<Array<Instant>> {
         val maxLimit = 200
         val params = toParams(
             "username" to username,
