@@ -31,6 +31,7 @@ class CarAppScreen(
 
     private var username: String? = null
     private var currentTrack: CurrentTrack? = null
+    private var latestError: String? = null
 
     override fun onGetTemplate(): Template {
         username = settings.username
@@ -41,6 +42,9 @@ class CarAppScreen(
         val pane =
             if (username == null) {
                 createNoUsernamePane()
+            }
+            else if (latestError != null) {
+                createErrorPane(latestError!!)
             }
             else if (currentTrack == null) {
                 Pane.Builder().setLoading(true).build()
@@ -61,6 +65,17 @@ class CarAppScreen(
                 Row.Builder()
                     .setTitle("Username not specified")
                     .addText("Please enter your Last.fm username in the mobile app")
+                    .build()
+            )
+            .build()
+    }
+
+    private fun createErrorPane(error: String): Pane {
+        return Pane.Builder()
+            .addRow(
+                Row.Builder()
+                    .setTitle("An error has occurred")
+                    .addText(error)
                     .build()
             )
             .build()
@@ -175,7 +190,12 @@ class CarAppScreen(
         override fun run() {
             Thread {
                 if (username != null) {
-                    currentTrack = repository.getCurrentTrack(username ?: "")
+                    var trackResult = repository.getCurrentTrack(username ?: "")
+                    if (trackResult.isOk) {
+                        currentTrack = trackResult.value
+                    } else {
+                        latestError = trackResult.error
+                    }
                 }
             }.start()
             handler.postDelayed(this, refetchTime.toMillis())

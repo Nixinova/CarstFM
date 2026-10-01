@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory
 import androidx.core.graphics.drawable.IconCompat
 import com.nixinova.carstfm.model.CurrentTrack
 import com.nixinova.carstfm.model.TrackDetails
+import com.nixinova.carstfm.model.Result
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URL
@@ -18,17 +19,18 @@ class LastFmRepository {
     private var cachedCurrentTrack: CurrentTrack? = null
 
     // call within a Thread
-    fun getCurrentTrack(username: String): CurrentTrack? {
-        val (track, time, image) = getLatestTrackDetails(username)
-            ?: return null
+    fun getCurrentTrack(username: String): Result<CurrentTrack?> {
+        val (track, time, image) = getLatestTrackDetails(username).valueOrReturn {
+            return Result.Fail<CurrentTrack?>(it)
+        }
 
         val cached = cachedCurrentTrack
         if (cached != null && cached.track == track) {
-            return cachedCurrentTrack
+            return Result.Ok(cachedCurrentTrack)
         }
 
-        val trackPlays = getTrackPlays(username, track)
-        val userTags = getTrackTags(username, track)
+        val trackPlays = getTrackPlays(username, track).valueOrNull
+        val userTags = getTrackTags(username, track).valueOrNull
 
         val currentTrack = CurrentTrack(
             track = track,
@@ -39,7 +41,7 @@ class LastFmRepository {
         )
         cachedCurrentTrack = currentTrack
 
-        return currentTrack
+        return Result.Ok(currentTrack)
     }
 
     private data class LatestTrackDetails(
@@ -47,14 +49,15 @@ class LastFmRepository {
         val time: Instant?,
         val albumImage: IconCompat?,
     )
-    private fun getLatestTrackDetails(username: String): LatestTrackDetails? {
+    private fun getLatestTrackDetails(username: String): Result<LatestTrackDetails> {
         val params = toParams(
             "username" to username,
             "method" to "user.getRecentTracks",
             "limit" to "1",
         )
-        val latestTrackResponse = callLastFmApi(params)
-            ?: return null
+        val latestTrackResponse = callLastFmApi(params).valueOrReturn {
+            return Result.Fail<LatestTrackDetails>(it)
+        }
 
         val latestTrackData = JSONObject(latestTrackResponse)
             .getJSONObject("recenttracks")
@@ -73,22 +76,23 @@ class LastFmRepository {
             .ifEmpty { null }
         val image = if (albumArtUrl == null) null else downloadImage(albumArtUrl)
 
-        return LatestTrackDetails(
+        return Result.Ok(LatestTrackDetails(
             TrackDetails(artist, album, song),
             time,
             image,
-        )
+        ))
     }
 
-    private fun getTrackTags(username: String, track: TrackDetails): List<String>? {
+    private fun getTrackTags(username: String, track: TrackDetails): Result<List<String>> {
         val params = toParams(
             "username" to username,
             "method" to "track.getTags",
             "artist" to encode(track.artist),
             "track" to encode(track.song),
         )
-        val userTagsResponse = callLastFmApi(params)
-            ?: return null
+        val userTagsResponse = callLastFmApi(params).valueOrReturn {
+            return Result.Fail<List<String>>("Failed to fetch user tags")
+        }
 
         val userTagsObjects = JSONObject(userTagsResponse)
             .getJSONObject("tags")
@@ -97,11 +101,11 @@ class LastFmRepository {
         val userTags = List(userTagsObjects.length()) { i ->
             userTagsObjects.getJSONObject(i).getString("name")
         }
-        return userTags
+        return Result.Ok(userTags)
     }
 
-    private fun getTrackPlays(username: String, track: TrackDetails, page: Int = 1): Array<Instant>? {
-        val maxLimit = 200;
+    private fun getTrackPlays(username: String, track: TrackDetails, page: Int = 1): Result<Array<Instant>> {
+        val maxLimit = 200
         val params = toParams(
             "username" to username,
             "method" to "user.getTrackScrobbles",
@@ -110,8 +114,9 @@ class LastFmRepository {
             "limit" to maxLimit.toString(),
             "page" to page.toString(),
         )
-        val scrobblesResponse = callLastFmApi(params)
-            ?: return null
+        val scrobblesResponse = callLastFmApi(params).valueOrReturn {
+            return Result.Fail<Array<Instant>>("Failed to fetch track plays")
+        }
 
         val trackScrobbles = JSONObject(scrobblesResponse)
             .getJSONObject("trackscrobbles")
@@ -127,28 +132,28 @@ class LastFmRepository {
             dates += Instant.ofEpochSecond(uts)
         }
         if (trackScrobbles.length() == maxLimit) {
-            val recursedList = getTrackPlays(username, track, page + 1)?.toList()
-            if (recursedList != null) {
-                dates.addAll(recursedList)
+            val recursedList = getTrackPlays(username, track, page + 1)
+            if (recursedList.isOk) {
+                dates.addAll(recursedList.value.toList())
             }
         }
 
-        return dates
-            .sorted()
-            .toTypedArray()
+        return Result.Ok(
+            dates.sorted().toTypedArray()
+        )
     }
 
-    private fun callLastFmApi(params: Map<String, String>): String? {
+    private fun callLastFmApi(params: Map<String, String>): Result<String> {
         val url = apiUrlBase + "?" + params.map { "${it.key}=${it.value}" }.joinToString("&")
         val response = fetch(url)
         try {
-            val hasError = JSONObject(response).has("error")
-            if (hasError) {
-                return null
+            val error = JSONObject(response).optString("error")
+            if (error.isNotEmpty()) {
+                return Result.Fail<String>("Last.fm fetch error: $error")
             }
-            return response
-        } catch (_: Exception) {
-            return null
+            return Result.Ok(response)
+        } catch (ex: Exception) {
+            return Result.Fail<String>("Unknown error: ${ex.message}")
         }
     }
 

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Next
+- Changed handling of errors.
 - Fixed plays count maxing out at 50.
 
 ## 1.0.1 (2)
