@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Changed date displaying.
+
 ## 1.0.2 (3)
 - Changed handling of errors.
 - Fixed plays count maxing out at 50.

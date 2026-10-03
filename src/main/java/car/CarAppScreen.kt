@@ -158,12 +158,12 @@ class CarAppScreen(
                                 "Never played"
                             }
                             1 -> {
-                                val played = DateFormatting.date(playsResult.value[0])
+                                val played = DateFormatting.relDate(playsResult.value[0])
                                 "Plays: 1 ($played)"
                             }
                             else -> {
-                                val firstPlayed = DateFormatting.date(playsResult.value[0])
-                                val lastPlayed = DateFormatting.date(playsResult.value[nPlays - 1])
+                                val firstPlayed = DateFormatting.relDate(playsResult.value[0])
+                                val lastPlayed = DateFormatting.relDate(playsResult.value[nPlays - 1])
                                 "Plays: $nPlays ($firstPlayed - $lastPlayed)"
                             }
                         }
