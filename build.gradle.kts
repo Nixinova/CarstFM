@@ -13,8 +13,8 @@ android {
         applicationId = "com.nixinova.carstfm"
         minSdk = 33
         targetSdk = 37
-        versionCode = 3
-        versionName = "1.0.2"
+        versionName = providers.gradleProperty("appVersionNumber").get()
+        versionCode = providers.gradleProperty("appVersionCode").get().toInt()
     }
 
     buildTypes {

@@ -21,7 +21,7 @@ compose.desktop {
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Msi
             )
             packageName = "CarstFM"
-            packageVersion = "1.0.3"
+            packageVersion = providers.gradleProperty("appVersionNumber").get()
         }
     }
 }
