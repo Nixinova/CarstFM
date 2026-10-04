@@ -12,6 +12,7 @@ appcompat = "1.8.0"
 appProjected = "1.4.0"
 appAutomotive = "1.7.0"
 app = "1.4.0"
+composeMultiplatform = "1.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,4 +37,5 @@ androidx-app = { group = "androidx.car.app", name = "app", version.ref = "app" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm" }
