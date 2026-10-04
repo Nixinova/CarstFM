@@ -71,7 +71,8 @@ class LastFmRepository {
         return Result.Ok(userTags)
     }
 
-    fun getTrackPlays(username: String, track: TrackDetails, page: Int = 1): Result<Array<Instant>> {
+    class TrackPlaysDto(val playTimes: Array<Instant>, val hasMore: Boolean)
+    fun getTrackPlays(username: String, track: TrackDetails, page: Int = 1): Result<TrackPlaysDto> {
         val maxLimit = 200
         val params = toParams(
             "username" to username,
@@ -82,7 +83,7 @@ class LastFmRepository {
             "page" to page.toString(),
         )
         val scrobblesResponse = callLastFmApi(params).valueOrReturn {
-            return Result.Fail<Array<Instant>>("Failed to fetch track plays")
+            return Result.Fail<TrackPlaysDto>("Failed to fetch track plays")
         }
 
         val trackScrobbles = JSONObject(scrobblesResponse)
@@ -101,13 +102,28 @@ class LastFmRepository {
         if (trackScrobbles.length() == maxLimit) {
             val recursedList = getTrackPlays(username, track, page + 1)
             if (recursedList.isOk) {
-                dates.addAll(recursedList.value.toList())
+                dates.addAll(recursedList.value.playTimes.toList())
+            }
+        }
+        var hasMore = false
+        if (username == "Nixinova" && page == 1) {
+            val oldPlaysResponse = getOldPlays(track).valueOrNull
+            if (oldPlaysResponse != null) {
+                val oldPlays = JSONArray(oldPlaysResponse)
+                if (oldPlays.length() > 0) {
+                    hasMore = true // if we find an old play, then we assume there are lots of pre-Last.fm plays
+                    val oldPlayDate = oldPlays
+                        .getJSONObject(0)
+                        .getString("date")
+                    dates.add(Instant.parse(oldPlayDate))
+                }
             }
         }
 
-        return Result.Ok(
-            dates.sorted().toTypedArray()
-        )
+        return Result.Ok(TrackPlaysDto(
+            dates.sorted().toTypedArray(),
+            hasMore
+        ))
     }
 
     private fun callLastFmApi(params: Map<String, String>): Result<String> {
@@ -122,6 +138,13 @@ class LastFmRepository {
         } catch (ex: Exception) {
             return Result.Fail<String>("Unknown error: ${ex.message}")
         }
+    }
+
+    private fun getOldPlays(track: TrackDetails): Result<String> {
+        val url = "https://nixinova-old-music-plays.netlify.app/.netlify/functions/getPlays" +
+            "?artist=${encode(track.artist)}&track=${encode(track.song)}"
+        val response = fetch(url)
+        return Result.Ok(response)
     }
 
     private fun toParams(vararg args: Pair<String, String>): Map<String, String> {

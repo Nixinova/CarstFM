@@ -32,7 +32,7 @@ class CarAppScreen(
 
     private var username: String? = null
     private var currentTrackResult: Result<CurrentTrack>? = null
-    private var playsResult: Result<Array<Instant>>? = null
+    private var playsResult: Result<LastFmRepository.TrackPlaysDto>? = null
     private var tagsResult: Result<List<String>>? = null
 
     override fun onGetTemplate(): Template {
@@ -42,7 +42,7 @@ class CarAppScreen(
 
     private fun createTemplate(
         currentTrackResult: Result<CurrentTrack>?,
-        playsResult: Result<Array<Instant>>?,
+        playsResult: Result<LastFmRepository.TrackPlaysDto>?,
         tagsResult: Result<List<String>>?,
     ): Template {
         val pane =
@@ -89,7 +89,7 @@ class CarAppScreen(
 
     private fun createTrackPane(
         currentTrack: CurrentTrack,
-        playsResult: Result<Array<Instant>>?,
+        playsResult: Result<LastFmRepository.TrackPlaysDto>?,
         tagsResult: Result<List<String>>?,
     ): Pane {
         // A dummy number used in modulo operations below to denote which page of some data to view
@@ -153,18 +153,28 @@ class CarAppScreen(
                         else if (playsResult.isError) {
                             "Error: " + playsResult.error
                         }
-                        else when (val nPlays = playsResult.value.size) {
-                            0 -> {
-                                "Never played"
-                            }
-                            1 -> {
-                                val played = DateFormatting.relDate(playsResult.value[0])
-                                "Plays: 1 ($played)"
-                            }
-                            else -> {
-                                val firstPlayed = DateFormatting.relDate(playsResult.value[0])
-                                val lastPlayed = DateFormatting.relDate(playsResult.value[nPlays - 1])
-                                "Plays: $nPlays ($firstPlayed - $lastPlayed)"
+                        else {
+                            val playTimes = playsResult.value.playTimes
+                            val hasMore = playsResult.value.hasMore
+                            when (val nPlays = playTimes.size) {
+                                0 -> {
+                                    "Never played"
+                                }
+                                1 -> {
+                                    val played = DateFormatting.relDate(playTimes[0])
+                                    if (hasMore) {
+                                        "Plays: >$nPlays ($played+)"
+                                    }
+                                    else {
+                                        "Plays: $nPlays ($played)"
+                                    }
+                                }
+                                else -> {
+                                    val firstPlayed = DateFormatting.relDate(playTimes[0])
+                                    val lastPlayed = DateFormatting.relDate(playTimes[nPlays - 1])
+                                    val totalNPlays = (if (hasMore) ">" else "") + nPlays
+                                    "Plays: $totalNPlays ($firstPlayed - $lastPlayed)"
+                                }
                             }
                         }
                     })

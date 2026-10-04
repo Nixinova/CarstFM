@@ -1,6 +1,7 @@
 # Changelog
 
 ## Next
+- Added retrieval of plays from my old tracks API.
 - Changed date displaying.
 
 ## 1.0.2 (3)
