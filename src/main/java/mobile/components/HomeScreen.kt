@@ -30,5 +30,6 @@ fun HomeScreen(settings: Settings, modifier: Modifier = Modifier) {
 
         UsernameForm(settings)
         BookmarksList(settings)
+        CustomEndpointForm(settings)
     }
 }

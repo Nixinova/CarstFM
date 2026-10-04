@@ -15,6 +15,7 @@ class Settings(context: Context) {
     private val keys = object {
         val username = "username"
         val bookmarks = "bookmarks"
+        val customPlaysEndpoint = "customEndpoint"
     }
 
     var username: String?
@@ -39,4 +40,8 @@ class Settings(context: Context) {
     private fun serialiseTrack(track: TrackDetails): String {
         return "${track.artist}$storedTrackDelimiter${track.album}$storedTrackDelimiter${track.song}"
     }
+
+    var customPlaysEndpoint: String?
+        get() = getPref(keys.customPlaysEndpoint)
+        set(value) = setPref(keys.customPlaysEndpoint, value)
 }

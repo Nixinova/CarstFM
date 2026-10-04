@@ -1,7 +1,7 @@
 # Changelog
 
 ## Next
-- Added retrieval of plays from my old tracks API.
+- Added ability to additionally retrieve plays from a custom endpoint.
 - Changed date displaying.
 
 ## 1.0.2 (3)

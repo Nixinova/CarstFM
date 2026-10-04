@@ -7,7 +7,7 @@ import com.nixinova.carstfm.repository.LastFmRepository
 import com.nixinova.carstfm.model.Settings
 
 class CarAppSession(private val settings: Settings) : Session() {
-    private val repository = LastFmRepository()
+    private val repository = LastFmRepository(settings)
 
     override fun onCreateScreen(intent: Intent): Screen {
         return CarAppScreen(carContext, repository, settings)

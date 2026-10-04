@@ -5,6 +5,7 @@ import androidx.core.graphics.drawable.IconCompat
 import com.nixinova.carstfm.model.CurrentTrack
 import com.nixinova.carstfm.model.TrackDetails
 import com.nixinova.carstfm.model.Result
+import com.nixinova.carstfm.model.Settings
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URL
@@ -12,7 +13,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 
-class LastFmRepository {
+class LastFmRepository(val settings: Settings) {
     private val apiKey = "0ff9dba2068dd35752b321c6412f86c5"
     private val apiUrlBase = "https://ws.audioscrobbler.com/2.0/"
 
@@ -141,7 +142,10 @@ class LastFmRepository {
     }
 
     private fun getOldPlays(track: TrackDetails): Result<String> {
-        val url = "https://nixinova-old-music-plays.netlify.app/.netlify/functions/getPlays" +
+        if (settings.customPlaysEndpoint.isNullOrEmpty())
+            return Result.Ok("[]")
+
+        val url = settings.customPlaysEndpoint +
             "?artist=${encode(track.artist)}&track=${encode(track.song)}"
         val response = fetch(url)
         return Result.Ok(response)
