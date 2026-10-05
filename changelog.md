@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Added version number to app home.
+
 ## 1.1.0 (4)
 - Added ability to additionally retrieve plays from a custom endpoint.
 - Changed date displaying.

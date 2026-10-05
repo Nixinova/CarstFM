@@ -1,5 +1,6 @@
 package com.nixinova.carstfm.app.mobile.components
 
+import android.content.pm.PackageInfo
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +13,13 @@ import androidx.compose.ui.unit.dp
 import com.nixinova.carstfm.shared.model.Settings
 
 @Composable
-fun HomeScreen(settings: Settings, modifier: Modifier = Modifier) {
+fun HomeScreen(
+    settings: Settings,
+    packageInfo: PackageInfo,
+    modifier: Modifier = Modifier,
+) {
+    val versionNumber = "${packageInfo.versionName} (${packageInfo.longVersionCode})"
+
     Column(
         modifier = modifier
             .padding(16.dp)
@@ -22,6 +29,11 @@ fun HomeScreen(settings: Settings, modifier: Modifier = Modifier) {
         Text(
             text = "CarstFM",
             style = MaterialTheme.typography.headlineLarge,
+        )
+
+        Text(
+            text = "v$versionNumber",
+            style = MaterialTheme.typography.labelSmall,
         )
 
         Text(
