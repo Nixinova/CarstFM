@@ -1,4 +1,4 @@
-package com.nixinova.carstfm.model
+package com.nixinova.carstfm.shared.model
 
 data class TrackDetails(
     val artist: String,

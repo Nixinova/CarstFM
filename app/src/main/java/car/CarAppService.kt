@@ -1,9 +1,9 @@
-package com.nixinova.carstfm.car
+package com.nixinova.carstfm.app.car
 
 import androidx.car.app.CarAppService as AppService
 import androidx.car.app.Session
 import androidx.car.app.validation.HostValidator
-import com.nixinova.carstfm.model.Settings
+import com.nixinova.carstfm.shared.model.Settings
 
 class CarAppService : AppService() {
     private lateinit var settings: Settings

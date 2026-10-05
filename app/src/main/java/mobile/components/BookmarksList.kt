@@ -1,4 +1,4 @@
-package com.nixinova.carstfm.mobile.components
+package com.nixinova.carstfm.app.mobile.components
 
 import android.os.Handler
 import android.os.Looper
@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.nixinova.carstfm.R
-import com.nixinova.carstfm.model.Settings
+import com.nixinova.carstfm.shared.model.Settings
 
 @Composable
 fun BookmarksList(settings: Settings) {

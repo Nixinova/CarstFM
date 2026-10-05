@@ -34,6 +34,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":shared"))
+
     implementation(platform(libs.androidx.compose.bom))
     // Car app
     implementation(libs.androidx.app)

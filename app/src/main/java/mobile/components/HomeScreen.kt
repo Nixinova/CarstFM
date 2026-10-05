@@ -1,4 +1,4 @@
-package com.nixinova.carstfm.mobile.components
+package com.nixinova.carstfm.app.mobile.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nixinova.carstfm.model.Settings
+import com.nixinova.carstfm.shared.model.Settings
 
 @Composable
 fun HomeScreen(settings: Settings, modifier: Modifier = Modifier) {

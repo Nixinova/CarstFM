@@ -1,4 +1,4 @@
-package com.nixinova.carstfm.car
+package com.nixinova.carstfm.app.car
 
 import android.os.Handler
 import android.os.Looper
@@ -11,12 +11,12 @@ import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
 import androidx.core.graphics.drawable.IconCompat
-import com.nixinova.carstfm.repository.LastFmRepository
+import com.nixinova.carstfm.shared.repository.LastFmRepository
+import com.nixinova.carstfm.shared.model.CurrentTrack
+import com.nixinova.carstfm.shared.model.Result
+import com.nixinova.carstfm.shared.model.Settings
+import com.nixinova.carstfm.shared.util.DateFormatting
 import com.nixinova.carstfm.R
-import com.nixinova.carstfm.model.CurrentTrack
-import com.nixinova.carstfm.model.Result
-import com.nixinova.carstfm.model.Settings
-import com.nixinova.carstfm.util.DateFormatting
 import java.time.Duration
 import java.time.Instant
 
@@ -94,12 +94,14 @@ class CarAppScreen(
     ): Pane {
         // A dummy number used in modulo operations below to denote which page of some data to view
         val carouselValue = (Instant.now().epochSecond.toInt() % 60) / dwellTime.seconds.toInt()
+        val albumArt = currentTrack.albumArt
+        val time = currentTrack.time
 
         return Pane.Builder()
             .apply {
-                if (currentTrack.albumArt != null)
+                if (albumArt != null)
                     setImage(
-                        CarIcon.Builder(currentTrack.albumArt)
+                        CarIcon.Builder(albumArt)
                             .build()
                     )
             }
@@ -113,10 +115,10 @@ class CarAppScreen(
                             "on " + currentTrack.track.album
                     )
                     .addText(
-                        if (currentTrack.time == null)
+                        if (time == null)
                             "Now playing"
                         else
-                            "Played at " + DateFormatting.relDateTime(currentTrack.time)
+                            "Played at " + DateFormatting.relDateTime(time)
                     )
                     .addAction(
                         Action.Builder()

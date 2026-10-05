@@ -1,11 +1,11 @@
-package com.nixinova.carstfm.repository
+package com.nixinova.carstfm.shared.repository
 
 import android.graphics.BitmapFactory
 import androidx.core.graphics.drawable.IconCompat
-import com.nixinova.carstfm.model.CurrentTrack
-import com.nixinova.carstfm.model.TrackDetails
-import com.nixinova.carstfm.model.Result
-import com.nixinova.carstfm.model.Settings
+import com.nixinova.carstfm.shared.model.CurrentTrack
+import com.nixinova.carstfm.shared.model.TrackDetails
+import com.nixinova.carstfm.shared.model.Result
+import com.nixinova.carstfm.shared.model.Settings
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URL

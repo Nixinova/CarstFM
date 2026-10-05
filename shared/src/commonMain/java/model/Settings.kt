@@ -1,4 +1,4 @@
-package com.nixinova.carstfm.model
+package com.nixinova.carstfm.shared.model
 
 import android.content.Context
 import androidx.core.content.edit

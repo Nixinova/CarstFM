@@ -1,4 +1,4 @@
-package com.nixinova.carstfm.model
+package com.nixinova.carstfm.shared.model
 
 class Result<T> {
     val rawValue: T?

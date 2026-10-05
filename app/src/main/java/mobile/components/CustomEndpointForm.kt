@@ -1,4 +1,4 @@
-package com.nixinova.carstfm.mobile.components
+package com.nixinova.carstfm.app.mobile.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.nixinova.carstfm.model.Settings
+import com.nixinova.carstfm.shared.model.Settings
 
 @Composable
 fun CustomEndpointForm(settings: Settings) {

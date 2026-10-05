@@ -1,10 +1,10 @@
-package com.nixinova.carstfm.car
+package com.nixinova.carstfm.app.car
 
 import android.content.Intent
 import androidx.car.app.Screen
 import androidx.car.app.Session
-import com.nixinova.carstfm.repository.LastFmRepository
-import com.nixinova.carstfm.model.Settings
+import com.nixinova.carstfm.shared.repository.LastFmRepository
+import com.nixinova.carstfm.shared.model.Settings
 
 class CarAppSession(private val settings: Settings) : Session() {
     private val repository = LastFmRepository(settings)

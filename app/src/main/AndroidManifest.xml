@@ -25,7 +25,7 @@
             android:value="1" />
 
         <activity
-            android:name="com.nixinova.carstfm.mobile.MainActivity"
+            android:name="com.nixinova.carstfm.app.mobile.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.CarstFM"
@@ -38,7 +38,7 @@
         </activity>
 
         <service
-            android:name="com.nixinova.carstfm.car.CarAppService"
+            android:name="com.nixinova.carstfm.app.car.CarAppService"
             android:exported="true">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />

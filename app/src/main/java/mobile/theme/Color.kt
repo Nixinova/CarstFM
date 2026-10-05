@@ -1,4 +1,4 @@
-package com.nixinova.carstfm.mobile.theme
+package com.nixinova.carstfm.app.mobile.theme
 
 import androidx.compose.ui.graphics.Color
 

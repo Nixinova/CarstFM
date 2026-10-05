@@ -1,4 +1,4 @@
-package com.nixinova.carstfm.mobile.theme
+package com.nixinova.carstfm.app.mobile.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

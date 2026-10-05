@@ -1,4 +1,4 @@
-package com.nixinova.carstfm.mobile
+package com.nixinova.carstfm.app.mobile
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.nixinova.carstfm.model.Settings
-import com.nixinova.carstfm.mobile.theme.CarstFMTheme
-import com.nixinova.carstfm.mobile.components.HomeScreen
+import com.nixinova.carstfm.app.mobile.theme.CarstFMTheme
+import com.nixinova.carstfm.app.mobile.components.HomeScreen
+import com.nixinova.carstfm.shared.model.Settings
 
 class MainActivity : ComponentActivity() {
     private lateinit var settings: Settings

@@ -1,4 +1,4 @@
-package com.nixinova.carstfm.util
+package com.nixinova.carstfm.shared.util
 
 import java.time.Instant
 import java.time.ZoneId
