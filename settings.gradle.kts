@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "CarstFM"
 
+include(":app")
 include(":windows")
