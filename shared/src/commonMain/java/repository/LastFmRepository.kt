@@ -107,7 +107,7 @@ class LastFmRepository(val settings: Settings) {
             }
         }
         var hasMore = false
-        if (username == "Nixinova" && page == 1) {
+        if (page == 1) {
             val oldPlaysResponse = getOldPlays(track).valueOrNull
             if (oldPlaysResponse != null) {
                 val oldPlays = JSONArray(oldPlaysResponse)
@@ -141,9 +141,9 @@ class LastFmRepository(val settings: Settings) {
         }
     }
 
-    private fun getOldPlays(track: TrackDetails): Result<String> {
+    private fun getOldPlays(track: TrackDetails): Result<String?> {
         if (settings.customPlaysEndpoint.isNullOrEmpty())
-            return Result.Ok("[]")
+            return Result.Ok<String?>(null)
 
         val url = settings.customPlaysEndpoint +
             "?artist=${encode(track.artist)}&track=${encode(track.song)}"

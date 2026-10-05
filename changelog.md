@@ -2,6 +2,7 @@
 
 ## Next
 - Added version number to app home.
+- Fixed custom endpoint not being fetched from.
 
 ## 1.1.0 (4)
 - Added ability to additionally retrieve plays from a custom endpoint.
