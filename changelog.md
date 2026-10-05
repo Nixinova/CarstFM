@@ -1,6 +1,6 @@
 # Changelog
 
-## Next
+## 1.1.0 (4)
 - Added ability to additionally retrieve plays from a custom endpoint.
 - Changed date displaying.
 
