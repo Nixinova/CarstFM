@@ -28,7 +28,7 @@ fun CustomEndpointForm(settings: Settings) {
             text = "Specify an optional additional custom track history URL"
         )
         Text(
-            text = "(Must return data of the type {date, artist, track}[])",
+            text = "(Must accept artist and track as query params and return {date}[]})",
             style = MaterialTheme.typography.bodySmall
         )
 

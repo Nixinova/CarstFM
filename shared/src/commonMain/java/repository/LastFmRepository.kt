@@ -108,15 +108,15 @@ class LastFmRepository(val settings: Settings) {
         }
         var hasMore = false
         if (page == 1) {
-            val oldPlaysResponse = getOldPlays(track).valueOrNull
-            if (oldPlaysResponse != null) {
-                val oldPlays = JSONArray(oldPlaysResponse)
-                if (oldPlays.length() > 0) {
-                    hasMore = true // if we find an old play, then we assume there are lots of pre-Last.fm plays
-                    val oldPlayDate = oldPlays
-                        .getJSONObject(0)
+            val retrievedPlaysResponse = fetchCustomEndpoint(track)
+            val retrievedPlays = JSONArray(retrievedPlaysResponse.valueOrNull ?: "[]")
+            if (retrievedPlays.length() > 0) {
+                hasMore = true // we assume the plays returned from this non-Last.fm endpoint are non-exhaustive
+                for (i in 0..<retrievedPlays.length()) {
+                    val date = retrievedPlays
+                        .getJSONObject(i)
                         .getString("date")
-                    dates.add(Instant.parse(oldPlayDate))
+                    dates.add(Instant.parse(date))
                 }
             }
         }
@@ -141,7 +141,7 @@ class LastFmRepository(val settings: Settings) {
         }
     }
 
-    private fun getOldPlays(track: TrackDetails): Result<String?> {
+    private fun fetchCustomEndpoint(track: TrackDetails): Result<String?> {
         if (settings.customPlaysEndpoint.isNullOrEmpty())
             return Result.Ok<String?>(null)
 
