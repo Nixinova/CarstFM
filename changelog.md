@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed special characters breaking bookmarks.
+
 ## 1.1.1 (5)
 - Added version number to app home.
 - Fixed custom endpoint not being fetched from.

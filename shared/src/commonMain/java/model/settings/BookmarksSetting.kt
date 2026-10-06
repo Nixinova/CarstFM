@@ -1,6 +1,9 @@
 package com.nixinova.carstfm.shared.model.settings
 
 import com.nixinova.carstfm.shared.model.TrackDetails
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 class BookmarksSetting {
     companion object {
@@ -22,12 +25,20 @@ class BookmarksSetting {
         private fun serialiseTrack(track: TrackDetails): String {
             val delim = Delimiter.STORED_TRACK
             return listOf(track.artist, track.album, track.song)
-                .joinToString(delim)
+                .joinToString(delim) { encode(it ?: "") }
         }
 
         private fun deserialiseTrack(str: String): TrackDetails {
-            val parts = str.split(Delimiter.STORED_TRACK)
+            val parts = str.split(Delimiter.STORED_TRACK).map { decode(it) }
             return TrackDetails(parts[0], parts[1], parts[2])
+        }
+
+        private fun encode(string: String): String {
+            return URLEncoder.encode(string, StandardCharsets.UTF_8)
+        }
+
+        private fun decode(string: String): String {
+            return URLDecoder.decode(string, StandardCharsets.UTF_8)
         }
     }
 }
