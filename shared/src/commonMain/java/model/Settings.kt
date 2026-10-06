@@ -2,6 +2,7 @@ package com.nixinova.carstfm.shared.model
 
 import android.content.Context
 import androidx.core.content.edit
+import com.nixinova.carstfm.shared.model.settings.BookmarksSetting
 
 class Settings(context: Context) {
     private val prefs = context.getSharedPreferences("carstfm", Context.MODE_PRIVATE)
@@ -23,23 +24,8 @@ class Settings(context: Context) {
         set(value) = setPref(keys.username, value)
 
     var bookmarks: List<TrackDetails>
-        get() = (getPref(keys.bookmarks) ?: "")
-            .split(bookmarksDelimiter)
-            .filter { it.isNotEmpty() }
-            .map { deserialiseTrack(it) }
-        set(value) {
-            val newValue = value.joinToString(bookmarksDelimiter) { serialiseTrack((it)) }
-            setPref(keys.bookmarks, newValue)
-        }
-    private val bookmarksDelimiter = ","
-    private val storedTrackDelimiter = "/"
-    private fun deserialiseTrack(str: String): TrackDetails {
-        val parts = str.split(storedTrackDelimiter)
-        return TrackDetails(parts[0], parts[1], parts[2])
-    }
-    private fun serialiseTrack(track: TrackDetails): String {
-        return "${track.artist}$storedTrackDelimiter${track.album}$storedTrackDelimiter${track.song}"
-    }
+        get() = BookmarksSetting.deserialise(getPref(keys.bookmarks) ?: "")
+        set(value) = setPref(keys.bookmarks, BookmarksSetting.serialise(value))
 
     var customPlaysEndpoint: String?
         get() = getPref(keys.customPlaysEndpoint)
