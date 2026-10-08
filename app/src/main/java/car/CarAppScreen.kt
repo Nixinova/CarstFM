@@ -2,6 +2,7 @@ package com.nixinova.carstfm.app.car
 
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.DrawableRes
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
@@ -17,6 +18,8 @@ import com.nixinova.carstfm.shared.model.Result
 import com.nixinova.carstfm.shared.model.Settings
 import com.nixinova.carstfm.shared.util.DateFormatting
 import com.nixinova.carstfm.R
+import com.nixinova.carstfm.shared.model.settings.BookmarkType
+import com.nixinova.carstfm.shared.model.settings.BookmarksSetting
 import java.time.Duration
 import java.time.Instant
 
@@ -121,27 +124,10 @@ class CarAppScreen(
                             "Played at " + DateFormatting.relDateTime(time)
                     )
                     .addAction(
-                        Action.Builder()
-                            .setTitle("Bookmark")
-                            .setIcon(
-                                CarIcon.Builder(
-                                    IconCompat.createWithResource(
-                                        carContext,
-                                        if (settings.bookmarks.contains(currentTrack.track))
-                                            R.drawable.unbookmark_icon
-                                        else
-                                            R.drawable.bookmark_icon
-                                    )
-                                ).build()
-                            )
-                            .setOnClickListener {
-                                if (settings.bookmarks.contains(currentTrack.track))
-                                    settings.bookmarks -= currentTrack.track
-                                else
-                                    settings.bookmarks += currentTrack.track
-                                invalidate() // refresh UI
-                            }
-                            .build()
+                        getBookmarkAction(
+                            BookmarksSetting(currentTrack.track, BookmarkType.TRACK_INFO),
+                            R.drawable.bookmark_icon to R.drawable.unbookmark_icon,
+                        )
                     )
                     .build()
             )
@@ -198,8 +184,38 @@ class CarAppScreen(
                             "Tags: " + subList.joinToString(", ")
                         }
                     )
+                    .addAction(
+                        getBookmarkAction(
+                            BookmarksSetting(currentTrack.track, BookmarkType.PLAYS_OR_TAGS),
+                            R.drawable.tag_icon to R.drawable.untag_icon,
+                        )
+                    )
                     .build()
             )
+            .build()
+    }
+
+    private fun getBookmarkAction(setting: BookmarksSetting, icons: Pair<Int, Int>): Action {
+        return Action.Builder()
+            .setTitle("Bookmark ${setting.type.name}")
+            .setIcon(
+                CarIcon.Builder(
+                    IconCompat.createWithResource(
+                        carContext,
+                        if (settings.bookmarks.contains(setting))
+                            icons.second
+                        else
+                            icons.first
+                    )
+                ).build()
+            )
+            .setOnClickListener {
+                if (settings.bookmarks.contains(setting))
+                    settings.bookmarks -= setting
+                else
+                    settings.bookmarks += setting
+                invalidate() // refresh UI
+            }
             .build()
     }
 

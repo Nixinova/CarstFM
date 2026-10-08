@@ -5,37 +5,63 @@ import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-class BookmarksSetting {
+enum class BookmarkType(val storedValue: String) {
+    TRACK_INFO("1"),
+    PLAYS_OR_TAGS("2"),
+}
+
+data class BookmarksSetting(
+    val track: TrackDetails,
+    val type: BookmarkType,
+) {
     companion object {
         private object Delimiter {
             const val BOOKMARK = ","
+            const val BOOKMARK_VALUE = "|"
             const val STORED_TRACK = "/"
         }
 
-        fun serialise(bookmarks: List<TrackDetails>): String {
-            return bookmarks.joinToString(Delimiter.BOOKMARK) { serialiseTrack((it)) }
+        fun serialise(bookmarks: List<BookmarksSetting>): String {
+            return bookmarks
+                .joinToString(Delimiter.BOOKMARK) { serialiseData(it) }
         }
 
-        fun deserialise(value: String): List<TrackDetails> {
+        fun deserialise(value: String): List<BookmarksSetting> {
             return value.split(Delimiter.BOOKMARK)
                 .filter { it.isNotEmpty() }
-                .map { deserialiseTrack(it) }
+                .map { deserialiseData(it) }
                 .distinct()
         }
 
-        private fun serialiseTrack(track: TrackDetails): String {
-            val delim = Delimiter.STORED_TRACK
-            return listOf(track.artist, track.album, track.song)
-                .joinToString(delim) { encode(it ?: "") }
+        private fun serialiseData(data: BookmarksSetting): String {
+            return listOf(
+                // track part:
+                listOf(data.track.artist, data.track.album, data.track.song)
+                    .joinToString(Delimiter.STORED_TRACK) { encode(it ?: "") },
+                // type part:
+                data.type.storedValue,
+            ).joinToString(Delimiter.BOOKMARK_VALUE)
         }
 
-        private fun deserialiseTrack(str: String): TrackDetails {
-            val parts = str.split(Delimiter.STORED_TRACK).map { decode(it) }
-            return TrackDetails(
-                artist = parts[0],
-                album = parts[1].ifEmpty { null },
-                song = parts[2],
+        private fun deserialiseData(str: String): BookmarksSetting {
+            val mainParts = str.split(Delimiter.BOOKMARK_VALUE)
+            val trackPart = mainParts[0]
+            val typePart = mainParts.getOrNull(1) ?: BookmarkType.TRACK_INFO.storedValue
+
+            val trackParts = trackPart
+                .split(Delimiter.STORED_TRACK)
+                .map { decode(it) }
+            val track = TrackDetails(
+                artist = trackParts[0],
+                album = trackParts[1].ifEmpty { null },
+                song = trackParts[2],
             )
+            val type = when (typePart) {
+                BookmarkType.TRACK_INFO.storedValue -> BookmarkType.TRACK_INFO
+                BookmarkType.PLAYS_OR_TAGS.storedValue -> BookmarkType.PLAYS_OR_TAGS
+                else -> throw Error("Invalid bookmark type")
+            }
+            return BookmarksSetting(track, type)
         }
 
         private fun encode(string: String): String {

@@ -1,6 +1,8 @@
 # Changelog
 
 ## Next
+- Added second bookmark type.
+- Changed bookmarks list to display the type of each bookmark.
 - Fixed special characters breaking bookmarks.
 
 ## 1.1.1 (5)

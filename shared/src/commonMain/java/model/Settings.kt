@@ -23,7 +23,7 @@ class Settings(context: Context) {
         get() = getPref(keys.username)
         set(value) = setPref(keys.username, value)
 
-    var bookmarks: List<TrackDetails>
+    var bookmarks: List<BookmarksSetting>
         get() = BookmarksSetting.deserialise(getPref(keys.bookmarks) ?: "")
         set(value) = setPref(keys.bookmarks, BookmarksSetting.serialise(value))
 

@@ -25,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.nixinova.carstfm.R
 import com.nixinova.carstfm.shared.model.Settings
+import com.nixinova.carstfm.shared.model.settings.BookmarkType
 
 @Composable
 fun BookmarksList(settings: Settings) {
@@ -43,13 +44,19 @@ fun BookmarksList(settings: Settings) {
             )
         }
 
-        bookmarks.forEach {
+        bookmarks.forEach { bookmark ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "${it.song} by ${it.artist}",
+                    text = listOf(
+                        "${bookmark.track.song} by ${bookmark.track.artist}",
+                        when(bookmark.type) {
+                            BookmarkType.TRACK_INFO -> "track info"
+                            BookmarkType.PLAYS_OR_TAGS -> "plays/tags"
+                        }
+                    ).joinToString(" - "),
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
                         .weight(1f)
@@ -58,7 +65,7 @@ fun BookmarksList(settings: Settings) {
 
                 Button(
                     onClick = {
-                        settings.bookmarks -= it
+                        settings.bookmarks -= bookmark
                         refreshCounter++
                     },
                     contentPadding = PaddingValues.Zero,
@@ -66,7 +73,12 @@ fun BookmarksList(settings: Settings) {
                         .padding(0.dp)
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.unbookmark_icon),
+                        painter = painterResource(
+                            when (bookmark.type) {
+                                BookmarkType.TRACK_INFO -> R.drawable.unbookmark_icon
+                                BookmarkType.PLAYS_OR_TAGS -> R.drawable.untag_icon
+                            }
+                        ),
                         contentDescription = "Bookmarked",
                         modifier = Modifier
                             .size(28.dp)
