@@ -5,6 +5,7 @@
 - Changed bookmarks list to display the type of each bookmark.
 - Fixed special characters breaking bookmarks.
 - Fixed app home not being scrollable.
+- Fixed app inputs being covered when keyboard is open.
 
 ## 1.1.1 (5)
 - Added version number to app home.
