@@ -15,4 +15,4 @@ build
 local.properties
 /.idea
 /.kotlin
-/release
+release

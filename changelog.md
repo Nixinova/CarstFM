@@ -1,6 +1,6 @@
 # Changelog
 
-## Next
+## 1.2.0 (6)
 - Added second bookmark type.
 - Changed bookmarks list to display the type of each bookmark.
 - Fixed special characters breaking bookmarks.
