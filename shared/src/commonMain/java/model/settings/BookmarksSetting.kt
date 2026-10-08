@@ -20,6 +20,7 @@ class BookmarksSetting {
             return value.split(Delimiter.BOOKMARK)
                 .filter { it.isNotEmpty() }
                 .map { deserialiseTrack(it) }
+                .distinct()
         }
 
         private fun serialiseTrack(track: TrackDetails): String {
@@ -30,7 +31,11 @@ class BookmarksSetting {
 
         private fun deserialiseTrack(str: String): TrackDetails {
             val parts = str.split(Delimiter.STORED_TRACK).map { decode(it) }
-            return TrackDetails(parts[0], parts[1], parts[2])
+            return TrackDetails(
+                artist = parts[0],
+                album = parts[1].ifEmpty { null },
+                song = parts[2],
+            )
         }
 
         private fun encode(string: String): String {
