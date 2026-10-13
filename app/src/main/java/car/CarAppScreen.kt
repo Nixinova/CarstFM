@@ -2,7 +2,6 @@ package com.nixinova.carstfm.app.car
 
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.DrawableRes
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
@@ -16,8 +15,9 @@ import com.nixinova.carstfm.shared.repository.LastFmRepository
 import com.nixinova.carstfm.shared.model.CurrentTrack
 import com.nixinova.carstfm.shared.model.Result
 import com.nixinova.carstfm.shared.model.Settings
-import com.nixinova.carstfm.shared.util.DateFormatting
 import com.nixinova.carstfm.R
+import com.nixinova.carstfm.shared.display.GlanceDisplay
+import com.nixinova.carstfm.shared.display.TrackDisplay
 import com.nixinova.carstfm.shared.model.settings.BookmarkType
 import com.nixinova.carstfm.shared.model.settings.BookmarksSetting
 import java.time.Duration
@@ -98,7 +98,6 @@ class CarAppScreen(
         // A dummy number used in modulo operations below to denote which page of some data to view
         val carouselValue = (Instant.now().epochSecond.toInt() % 60) / dwellTime.seconds.toInt()
         val albumArt = currentTrack.albumArt
-        val time = currentTrack.time
 
         return Pane.Builder()
             .apply {
@@ -111,18 +110,8 @@ class CarAppScreen(
             .addRow(
                 Row.Builder()
                     .setTitle(currentTrack.track.song)
-                    .addText(
-                        if (carouselValue % 2 == 0 || currentTrack.track.album == null)
-                            "by " + currentTrack.track.artist
-                        else
-                            "on " + currentTrack.track.album
-                    )
-                    .addText(
-                        if (time == null)
-                            "Now playing"
-                        else
-                            "Played at " + DateFormatting.relDateTime(time)
-                    )
+                    .addText(TrackDisplay.trackSubtitle(currentTrack, carouselValue))
+                    .addText(TrackDisplay.trackTime(currentTrack))
                     .addAction(
                         getBookmarkAction(
                             BookmarksSetting(currentTrack.track, BookmarkType.TRACK_INFO),
@@ -134,56 +123,8 @@ class CarAppScreen(
             .addRow(
                 Row.Builder()
                     .setTitle("At a glance")
-                    .addText(run {
-                        if (playsResult == null) {
-                            "Plays loading..."
-                        }
-                        else if (playsResult.isError) {
-                            "Error: " + playsResult.error
-                        }
-                        else {
-                            val playTimes = playsResult.value.playTimes
-                            val hasMore = playsResult.value.hasMore
-                            when (val nPlays = playTimes.size) {
-                                0 -> {
-                                    "Never played"
-                                }
-                                1 -> {
-                                    val played = DateFormatting.relDate(playTimes[0])
-                                    if (hasMore) {
-                                        "Plays: >$nPlays ($played+)"
-                                    }
-                                    else {
-                                        "Plays: $nPlays ($played)"
-                                    }
-                                }
-                                else -> {
-                                    val firstPlayed = DateFormatting.relDate(playTimes[0])
-                                    val lastPlayed = DateFormatting.relDate(playTimes[nPlays - 1])
-                                    val totalNPlays = (if (hasMore) ">" else "") + nPlays
-                                    "Plays: $totalNPlays ($firstPlayed - $lastPlayed)"
-                                }
-                            }
-                        }
-                    })
-                    .addText(
-                        if (tagsResult == null) {
-                            "Tags loading..."
-                        }
-                        else if (tagsResult.isError) {
-                            "Error: " + tagsResult.error
-                        }
-                        else if (tagsResult.value.isEmpty()){
-                            "Untagged"
-                        }
-                        else {
-                            val length = tagsResult.value.size
-                            val startIndex =  carouselValue % length
-                            val sortedTags = tagsResult.value.sortedBy { it.lowercase() }
-                            val subList = (sortedTags + sortedTags).slice(IntRange(startIndex, length * 2 - 1))
-                            "Tags: " + subList.joinToString(", ")
-                        }
-                    )
+                    .addText(GlanceDisplay.plays(playsResult))
+                    .addText(GlanceDisplay.tags(tagsResult, carouselValue))
                     .addAction(
                         getBookmarkAction(
                             BookmarksSetting(currentTrack.track, BookmarkType.PLAYS_OR_TAGS),
