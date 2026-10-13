@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed crash when parsing old bookmarks.
+
 ## 1.2.0 (6)
 - Added second bookmark type.
 - Changed bookmarks list to display the type of each bookmark.

@@ -46,7 +46,7 @@ data class BookmarksSetting(
         private fun deserialiseData(str: String): BookmarksSetting {
             val mainParts = str.split(Delimiter.BOOKMARK_VALUE)
             val trackPart = mainParts[0]
-            val typePart = mainParts.getOrNull(1) ?: BookmarkType.TRACK_INFO.storedValue
+            val typePart = if (mainParts.size > 1) mainParts[1] else BookmarkType.TRACK_INFO.storedValue
 
             val trackParts = trackPart
                 .split(Delimiter.STORED_TRACK)
