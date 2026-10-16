@@ -1,7 +1,6 @@
 # Changelog
 
 ## Next
-- Changed 'At a glance' line labels.
 - Fixed crash when parsing old bookmarks.
 
 ## 1.2.0 (6)
