@@ -1,6 +1,7 @@
 # Changelog
 
 ## Next
+- Changed plays line to have unique string for if last played just now.
 - Fixed crash when parsing old bookmarks.
 - Fixed plays text line being cut off.
 

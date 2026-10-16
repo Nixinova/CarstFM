@@ -3,6 +3,8 @@ package com.nixinova.carstfm.shared.display
 import com.nixinova.carstfm.shared.model.Result
 import com.nixinova.carstfm.shared.repository.LastFmRepository
 import com.nixinova.carstfm.shared.util.DateFormatting
+import java.time.Duration
+import java.time.Instant
 
 class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
     val maxLineLen = if (hasAlbumArt) 28 else 50
@@ -33,7 +35,10 @@ class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
             }
             else -> {
                 val firstPlayed = DateFormatting.relDate(playTimes[0])
-                val lastPlayed = DateFormatting.relDate(playTimes[nPlays - 1])
+                var lastPlayed = DateFormatting.relDate(playTimes[nPlays - 1])
+                if (Duration.between(Instant.now(), playTimes[nPlays - 1]).abs() < Duration.ofMinutes(10)) {
+                    lastPlayed = "just now"
+                }
                 val totalNPlays = (if (hasMore) ">" else "") + nPlays
                 val text = "Plays: $totalNPlays ($firstPlayed - $lastPlayed)"
                 if (text.length > maxLineLen && carouselValue % 5 > 2) {
