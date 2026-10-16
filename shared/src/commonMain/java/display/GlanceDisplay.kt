@@ -23,17 +23,17 @@ object GlanceDisplay {
             1 -> {
                 val played = DateFormatting.relDate(playTimes[0])
                 return if (hasMore) {
-                    "Plays: >$nPlays ($played+)"
+                    ">$nPlays plays ($played+)"
                 }
                 else {
-                    "Plays: $nPlays ($played)"
+                    "$nPlays plays ($played)"
                 }
             }
             else -> {
                 val firstPlayed = DateFormatting.relDate(playTimes[0])
                 val lastPlayed = DateFormatting.relDate(playTimes[nPlays - 1])
                 val totalNPlays = (if (hasMore) ">" else "") + nPlays
-                return "Plays: $totalNPlays ($firstPlayed - $lastPlayed)"
+                return "$totalNPlays plays ($firstPlayed - $lastPlayed)"
             }
         }
     }
@@ -55,6 +55,6 @@ object GlanceDisplay {
         val startIndex =  carouselValue % length
         val sortedTags = tagsResult.value.sortedBy { it.lowercase() }
         val subList = (sortedTags + sortedTags).slice(IntRange(startIndex, length * 2 - 1))
-        return "Tags: " + subList.joinToString(", ")
+        return subList.joinToString(", ")
     }
 }
