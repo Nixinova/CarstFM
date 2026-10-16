@@ -4,10 +4,10 @@ import com.nixinova.carstfm.shared.model.Result
 import com.nixinova.carstfm.shared.repository.LastFmRepository
 import com.nixinova.carstfm.shared.util.DateFormatting
 
-object GlanceDisplay {
-    const val MAX_LINE_LEN = 28
+class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
+    val maxLineLen = if (hasAlbumArt) 28 else 50
 
-    fun plays(playsResult: Result<LastFmRepository.TrackPlaysDto>?, carouselValue: Int): String {
+    fun plays(playsResult: Result<LastFmRepository.TrackPlaysDto>?): String {
         if (playsResult == null) {
             return "Plays loading..."
         }
@@ -36,15 +36,15 @@ object GlanceDisplay {
                 val lastPlayed = DateFormatting.relDate(playTimes[nPlays - 1])
                 val totalNPlays = (if (hasMore) ">" else "") + nPlays
                 val text = "Plays: $totalNPlays ($firstPlayed - $lastPlayed)"
-                if (text.length > MAX_LINE_LEN && carouselValue % 5 > 2) {
-                    return "…" + text.substring(text.length - MAX_LINE_LEN)
+                if (text.length > maxLineLen && carouselValue % 5 > 2) {
+                    return "…" + text.substring(text.length - maxLineLen)
                 }
                 return text
             }
         }
     }
 
-    fun tags(tagsResult: Result<List<String>>?, carouselValue: Int): String {
+    fun tags(tagsResult: Result<List<String>>?): String {
         if (tagsResult == null) {
             return "Tags loading..."
         }

@@ -3,8 +3,8 @@ package com.nixinova.carstfm.shared.display
 import com.nixinova.carstfm.shared.model.CurrentTrack
 import com.nixinova.carstfm.shared.util.DateFormatting
 
-object TrackDisplay {
-    fun trackSubtitle(currentTrack: CurrentTrack, carouselValue: Int): String {
+class TrackDisplay(val carouselValue: Int) {
+    fun trackSubtitle(currentTrack: CurrentTrack): String {
         return if (carouselValue % 2 == 0 || currentTrack.track.album == null)
             "by " + currentTrack.track.artist
         else

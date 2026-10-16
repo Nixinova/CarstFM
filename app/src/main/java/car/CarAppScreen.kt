@@ -99,6 +99,9 @@ class CarAppScreen(
         val carouselValue = (Instant.now().epochSecond.toInt() % 60) / dwellTime.seconds.toInt()
         val albumArt = currentTrack.albumArt
 
+        val trackDisplay = TrackDisplay(carouselValue)
+        val glanceDisplay = GlanceDisplay(carouselValue, albumArt != null)
+
         return Pane.Builder()
             .apply {
                 if (albumArt != null)
@@ -110,8 +113,8 @@ class CarAppScreen(
             .addRow(
                 Row.Builder()
                     .setTitle(currentTrack.track.song)
-                    .addText(TrackDisplay.trackSubtitle(currentTrack, carouselValue))
-                    .addText(TrackDisplay.trackTime(currentTrack))
+                    .addText(trackDisplay.trackSubtitle(currentTrack))
+                    .addText(trackDisplay.trackTime(currentTrack))
                     .addAction(
                         getBookmarkAction(
                             BookmarksSetting(currentTrack.track, BookmarkType.TRACK_INFO),
@@ -123,8 +126,8 @@ class CarAppScreen(
             .addRow(
                 Row.Builder()
                     .setTitle("At a glance")
-                    .addText(GlanceDisplay.plays(playsResult, carouselValue))
-                    .addText(GlanceDisplay.tags(tagsResult, carouselValue))
+                    .addText(glanceDisplay.plays(playsResult))
+                    .addText(glanceDisplay.tags(tagsResult))
                     .addAction(
                         getBookmarkAction(
                             BookmarksSetting(currentTrack.track, BookmarkType.PLAYS_OR_TAGS),
