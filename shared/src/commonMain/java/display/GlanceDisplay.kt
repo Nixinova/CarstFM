@@ -36,7 +36,7 @@ object GlanceDisplay {
                 val lastPlayed = DateFormatting.relDate(playTimes[nPlays - 1])
                 val totalNPlays = (if (hasMore) ">" else "") + nPlays
                 val text = "Plays: $totalNPlays ($firstPlayed - $lastPlayed)"
-                if (text.length > MAX_LINE_LEN && carouselValue % 2 == 1) {
+                if (text.length > MAX_LINE_LEN && carouselValue % 5 > 2) {
                     return "…" + text.substring(text.length - MAX_LINE_LEN)
                 }
                 return text
