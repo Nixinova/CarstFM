@@ -123,7 +123,7 @@ class CarAppScreen(
             .addRow(
                 Row.Builder()
                     .setTitle("At a glance")
-                    .addText(GlanceDisplay.plays(playsResult))
+                    .addText(GlanceDisplay.plays(playsResult, carouselValue))
                     .addText(GlanceDisplay.tags(tagsResult, carouselValue))
                     .addAction(
                         getBookmarkAction(

@@ -2,6 +2,7 @@
 
 ## Next
 - Fixed crash when parsing old bookmarks.
+- Fixed plays text line being cut off.
 
 ## 1.2.0 (6)
 - Added second bookmark type.
