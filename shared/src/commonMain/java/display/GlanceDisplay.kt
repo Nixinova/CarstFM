@@ -1,5 +1,6 @@
 package com.nixinova.carstfm.shared.display
 
+import android.util.Log
 import com.nixinova.carstfm.shared.model.Result
 import com.nixinova.carstfm.shared.repository.LastFmRepository
 import com.nixinova.carstfm.shared.util.DateFormatting
@@ -49,6 +50,26 @@ class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
         }
     }
 
+    fun uniqueAlbums(playsResult: Result<LastFmRepository.TrackPlaysDto>?): String {
+        if (playsResult == null) {
+            return "Plays loading..."
+        }
+
+        if (playsResult.isError) {
+            return "Error: " + playsResult.error
+        }
+
+        val albumsSet = playsResult.value.albums.distinct()
+
+        val length = albumsSet.size
+        val startIndex =  carouselValue % length
+        val subList = if (length < 3)
+            albumsSet
+        else
+            (albumsSet + albumsSet).slice(IntRange(startIndex, length * 2 - 1))
+        return "On: " + subList.joinToString(", ")
+    }
+
     fun tags(tagsResult: Result<List<String>>?): String {
         if (tagsResult == null) {
             return "Tags loading..."
@@ -65,7 +86,10 @@ class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
         val length = tagsResult.value.size
         val startIndex =  carouselValue % length
         val sortedTags = tagsResult.value.sortedBy { it.lowercase() }
-        val subList = (sortedTags + sortedTags).slice(IntRange(startIndex, length * 2 - 1))
+        val subList = if (length < 3)
+            sortedTags
+        else
+            (sortedTags + sortedTags).slice(IntRange(startIndex, length * 2 - 1))
         return "Tags: " + subList.joinToString(", ")
     }
 }

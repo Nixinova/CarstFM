@@ -126,7 +126,12 @@ class CarAppScreen(
             .addRow(
                 Row.Builder()
                     .setTitle("At a glance")
-                    .addText(glanceDisplay.plays(playsResult))
+                    .addText(
+                        if (carouselValue % 8 > 4)
+                            glanceDisplay.plays(playsResult)
+                        else
+                            glanceDisplay.uniqueAlbums(playsResult)
+                    )
                     .addText(glanceDisplay.tags(tagsResult))
                     .addAction(
                         getBookmarkAction(
@@ -183,10 +188,10 @@ class CarAppScreen(
                     currentTrackResult = repository.getCurrentTrack(usernameVal)
                     var newCurrentTrack = currentTrackResult?.valueOrNull?.track
                     if (newCurrentTrack != null && newCurrentTrack != lastCurrentTrack) {
-                        // Refetch these
+                        // (Re)fetch these
                         playsResult = null
                         Thread {
-                            playsResult = repository.getTrackPlays(usernameVal, newCurrentTrack)
+                            playsResult = repository.getTrackPlays(usernameVal, newCurrentTrack.artist, newCurrentTrack.song)
                         }.start()
                         tagsResult = null
                         Thread {

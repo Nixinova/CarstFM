@@ -72,14 +72,14 @@ class LastFmRepository(val settings: Settings) {
         return Result.Ok(userTags)
     }
 
-    class TrackPlaysDto(val playTimes: Array<Instant>, val hasMore: Boolean)
-    fun getTrackPlays(username: String, track: TrackDetails, page: Int = 1): Result<TrackPlaysDto> {
+    class TrackPlaysDto(val playTimes: Array<Instant>, val albums: Array<String>, val hasMore: Boolean)
+    fun getTrackPlays(username: String, artist: String, song: String, page: Int = 1): Result<TrackPlaysDto> {
         val maxLimit = 200
         val params = toParams(
             "username" to username,
             "method" to "user.getTrackScrobbles",
-            "artist" to encode(track.artist),
-            "track" to encode(track.song),
+            "artist" to encode(artist),
+            "track" to encode(song),
             "limit" to maxLimit.toString(),
             "page" to page.toString(),
         )
@@ -92,23 +92,29 @@ class LastFmRepository(val settings: Settings) {
             .getJSONArray("track")
 
         val dates = mutableListOf<Instant>()
+        var albums = listOf<String>()
+        var hasMore = false
         for (i in 0..<trackScrobbles.length()) {
-            val uts = trackScrobbles
+            val scrobble = trackScrobbles
                 .getJSONObject(i)
+            val uts = scrobble
                 .getJSONObject("date")
                 .getInt("uts")
                 .toLong()
+            val album = scrobble.getJSONObject("album").getString("#text").ifEmpty { null }
             dates += Instant.ofEpochSecond(uts)
+            if (album != null) {
+                albums = listOf(album) + albums // prepend
+            }
         }
         if (trackScrobbles.length() == maxLimit) {
-            val recursedList = getTrackPlays(username, track, page + 1)
+            val recursedList = getTrackPlays(username, artist, song, page + 1)
             if (recursedList.isOk) {
                 dates.addAll(recursedList.value.playTimes.toList())
             }
         }
-        var hasMore = false
         if (page == 1) {
-            val retrievedPlaysResponse = fetchCustomEndpoint(track)
+            val retrievedPlaysResponse = fetchCustomEndpoint(artist, song)
             val retrievedPlays = JSONArray(retrievedPlaysResponse.valueOrNull ?: "[]")
             if (retrievedPlays.length() > 0) {
                 hasMore = true // we assume the plays returned from this non-Last.fm endpoint are non-exhaustive
@@ -123,6 +129,7 @@ class LastFmRepository(val settings: Settings) {
 
         return Result.Ok(TrackPlaysDto(
             dates.sorted().toTypedArray(),
+            albums.toTypedArray(),
             hasMore
         ))
     }
@@ -141,12 +148,12 @@ class LastFmRepository(val settings: Settings) {
         }
     }
 
-    private fun fetchCustomEndpoint(track: TrackDetails): Result<String?> {
+    private fun fetchCustomEndpoint(artist: String, song: String): Result<String?> {
         if (settings.customPlaysEndpoint.isNullOrEmpty())
             return Result.Ok<String?>(null)
 
         val url = settings.customPlaysEndpoint +
-            "?artist=${encode(track.artist)}&track=${encode(track.song)}"
+            "?artist=${encode(artist)}&track=${encode(song)}"
         val response = fetch(url)
         return Result.Ok(response)
     }

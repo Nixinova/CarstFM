@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Added new carouseled line to show a list of albums the current track has been played from.
+
 ## 1.2.1 (7)
 - Changed plays line to have unique string for if last played just now.
 - Fixed crash when parsing old bookmarks.
