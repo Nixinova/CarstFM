@@ -61,6 +61,8 @@ class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
         val albumsSet = playsResult.value.albums.distinct()
 
         val length = albumsSet.size
+        if (length == 0) return "On: (no albums)"
+
         val startIndex =  carouselValue % length
         val subList = if (length < 3)
             albumsSet
