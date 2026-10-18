@@ -63,11 +63,7 @@ class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
         val length = albumsSet.size
         if (length == 0) return "On: (no albums)"
 
-        val startIndex =  carouselValue % length
-        val subList = if (length < 3)
-            albumsSet
-        else
-            (albumsSet + albumsSet).slice(IntRange(startIndex, length * 2 - 1))
+        val subList = cycleList(albumsSet, carouselValue)
         return "On: " + subList.joinToString(", ")
     }
 
@@ -84,13 +80,14 @@ class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
             return "Untagged"
         }
 
-        val length = tagsResult.value.size
-        val startIndex =  carouselValue % length
         val sortedTags = tagsResult.value.sortedBy { it.lowercase() }
-        val subList = if (length < 3)
-            sortedTags
-        else
-            (sortedTags + sortedTags).slice(IntRange(startIndex, length * 2 - 1))
+        val subList = cycleList(sortedTags, carouselValue)
         return "Tags: " + subList.joinToString(", ")
+    }
+
+    private fun cycleList(list: List<String>, carouselValue: Int): List<String> {
+        val carouselIndex = carouselValue % list.size
+        return list.slice(carouselIndex until list.size) +
+            list.slice(0 until carouselIndex)
     }
 }
