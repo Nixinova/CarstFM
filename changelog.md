@@ -3,6 +3,7 @@
 ## Next
 - Added elapsed time beside 'Now playing' text.
 - Added new carouseled line to show a list of albums the current track has been played from.
+- Changed album text label.
 - Changed length at which the plays line scrolls.
 
 ## 1.2.1 (7)

@@ -10,7 +10,7 @@ class TrackDisplay(val carouselValue: Int) {
         return if (carouselValue % 2 == 0 || currentTrack.track.album == null)
             "by " + currentTrack.track.artist
         else
-            "on " + currentTrack.track.album
+            "from " + currentTrack.track.album
     }
 
     fun trackTime(currentTrack: CurrentTrack, curTrackStartTime: Instant?): String {

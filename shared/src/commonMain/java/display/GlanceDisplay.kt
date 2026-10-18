@@ -61,10 +61,10 @@ class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
         val albumsSet = playsResult.value.albums.distinct()
 
         val length = albumsSet.size
-        if (length == 0) return "On: (no albums)"
+        if (length == 0) return "From: (no albums)"
 
         val subList = cycleList(albumsSet, carouselValue)
-        return "On: " + subList.joinToString(", ")
+        return "From: " + subList.joinToString(", ")
     }
 
     fun tags(tagsResult: Result<List<String>>?): String {
