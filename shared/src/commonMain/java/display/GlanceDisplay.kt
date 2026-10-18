@@ -1,6 +1,5 @@
 package com.nixinova.carstfm.shared.display
 
-import android.util.Log
 import com.nixinova.carstfm.shared.model.Result
 import com.nixinova.carstfm.shared.repository.LastFmRepository
 import com.nixinova.carstfm.shared.util.DateFormatting
@@ -8,7 +7,7 @@ import java.time.Duration
 import java.time.Instant
 
 class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
-    val maxLineLen = if (hasAlbumArt) 28 else 50
+    val maxLineLen = if (hasAlbumArt) 37 else 70
 
     fun plays(playsResult: Result<LastFmRepository.TrackPlaysDto>?): String {
         if (playsResult == null) {
@@ -43,7 +42,7 @@ class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
                 val totalNPlays = (if (hasMore) ">" else "") + nPlays
                 val text = "Plays: $totalNPlays ($firstPlayed - $lastPlayed)"
                 if (text.length > maxLineLen && carouselValue % 5 > 2) {
-                    return "…" + text.substring(text.length - maxLineLen)
+                    return "…" + text.takeLast(maxLineLen)
                 }
                 return text
             }
