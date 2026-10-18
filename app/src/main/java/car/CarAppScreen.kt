@@ -127,7 +127,7 @@ class CarAppScreen(
                 Row.Builder()
                     .setTitle("At a glance")
                     .addText(
-                        if (carouselValue % 8 > 4)
+                        if (carouselValue % 10 <= 5)
                             glanceDisplay.plays(playsResult)
                         else
                             glanceDisplay.uniqueAlbums(playsResult)
