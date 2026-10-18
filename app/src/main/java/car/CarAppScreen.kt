@@ -37,6 +37,7 @@ class CarAppScreen(
     private var currentTrackResult: Result<CurrentTrack>? = null
     private var playsResult: Result<LastFmRepository.TrackPlaysDto>? = null
     private var tagsResult: Result<List<String>>? = null
+    private var curTrackStartPlayTime: Instant? = null
 
     override fun onGetTemplate(): Template {
         username = settings.username
@@ -114,7 +115,7 @@ class CarAppScreen(
                 Row.Builder()
                     .setTitle(currentTrack.track.song)
                     .addText(trackDisplay.trackSubtitle(currentTrack))
-                    .addText(trackDisplay.trackTime(currentTrack))
+                    .addText(trackDisplay.trackTime(currentTrack, curTrackStartPlayTime))
                     .addAction(
                         getBookmarkAction(
                             BookmarksSetting(currentTrack.track, BookmarkType.TRACK_INFO),
@@ -186,8 +187,11 @@ class CarAppScreen(
                 var usernameVal = username
                 if (usernameVal != null) {
                     currentTrackResult = repository.getCurrentTrack(usernameVal)
-                    var newCurrentTrack = currentTrackResult?.valueOrNull?.track
+                    val newCurPlay = currentTrackResult?.valueOrNull
+                    val newCurrentTrack = newCurPlay?.track
                     if (newCurrentTrack != null && newCurrentTrack != lastCurrentTrack) {
+                        // Set now-playing start time
+                        curTrackStartPlayTime = if (newCurPlay.time == null) Instant.now() else null
                         // (Re)fetch these
                         playsResult = null
                         Thread {
