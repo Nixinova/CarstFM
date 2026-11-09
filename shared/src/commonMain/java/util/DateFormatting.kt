@@ -27,6 +27,9 @@ class DateFormatting {
         fun relDate(instant: Instant): String {
             val date = instant.toZoned()
             val now = Instant.now().toZoned()
+            if (now.year != date.year) {
+                return date(instant)
+            }
             return when (val daysAgo = now.dayOfYear - date.dayOfYear) {
                 0 -> "Today"
                 1 -> "Yesterday"
@@ -38,10 +41,11 @@ class DateFormatting {
         fun relDateTime(instant: Instant): String {
             val date = instant.toZoned()
             val now = Instant.now().toZoned()
-            if (date.dayOfYear == now.dayOfYear) {
+            if (date.year == now.year &&
+                date.dayOfYear == now.dayOfYear) {
                 return time(instant)
             }
-            return time(instant) + ", " + date(instant)
+            return time(instant) + ", " + relDate(instant)
         }
 
         private fun Instant.toZoned(): ZonedDateTime {

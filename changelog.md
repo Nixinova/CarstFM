@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed incorrect relative date formatting.
+
 ## 1.3.0 (8)
 - Added elapsed time beside 'Now playing' text.
 - Added new carouseled line to show a list of albums the current track has been played from.
