@@ -18,7 +18,7 @@ class TrackDisplay(val carouselValue: Int) {
             if (curTrackStartTime == null)
                 "Now playing"
             else
-                "Now playing (${elapsedTime(curTrackStartTime)})"
+                "Now playing (${elapsedTime(curTrackStartTime)} ago)"
         else
             "Played at " + DateFormatting.relDateTime(currentTrack.time)
     }
@@ -26,6 +26,6 @@ class TrackDisplay(val carouselValue: Int) {
     private fun elapsedTime(startTime: Instant?): String {
         val elapsedSecs = Duration.between(startTime ?: Instant.now(), Instant.now()).abs().toSeconds()
         val elapsedFmtd = "%.1f".format(elapsedSecs / 60f)
-        return elapsedFmtd + "min"
+        return elapsedFmtd + "m"
     }
 }

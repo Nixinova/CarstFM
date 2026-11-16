@@ -3,6 +3,7 @@
 ## Next
 - Added number of times played to albums glance line.
 - Changed length at which the plays line scrolls.
+- Changed now playing time ago text.
 - Fixed incorrect relative date formatting.
 
 ## 1.3.0 (8)
