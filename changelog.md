@@ -1,6 +1,7 @@
 # Changelog
 
 ## Next
+- Changed length at which the plays line scrolls.
 - Fixed incorrect relative date formatting.
 
 ## 1.3.0 (8)

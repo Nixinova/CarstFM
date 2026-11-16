@@ -7,7 +7,7 @@ import java.time.Duration
 import java.time.Instant
 
 class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
-    val maxLineLen = if (hasAlbumArt) 37 else 70
+    val maxLineLen = if (hasAlbumArt) 32 else 55
 
     fun plays(playsResult: Result<LastFmRepository.TrackPlaysDto>?): String {
         if (playsResult == null) {
