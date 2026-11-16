@@ -5,6 +5,7 @@ import com.nixinova.carstfm.shared.repository.LastFmRepository
 import com.nixinova.carstfm.shared.util.DateFormatting
 import java.time.Duration
 import java.time.Instant
+import kotlin.collections.reduce
 
 class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
     val maxLineLen = if (hasAlbumArt) 32 else 55
@@ -58,12 +59,23 @@ class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
             return "Error: " + playsResult.error
         }
 
-        val albumsSet = playsResult.value.albums.distinct()
+        val albums = playsResult.value.albums
 
-        val length = albumsSet.size
+        val length = albums.size
         if (length == 0) return "From: (no albums)"
 
-        val subList = cycleList(albumsSet, carouselValue)
+        val albumCounts = HashMap<String, Int>()
+        for (album in albums) {
+            albumCounts[album] = (albumCounts[album] ?: 0) + 1
+        }
+
+        val albumsTextList = albumCounts
+            .toList()
+            .sortedBy { it.first }
+            .sortedByDescending { it.second }
+            .map { "${it.first} (${it.second}x)" }
+
+        val subList = cycleList(albumsTextList, carouselValue)
         return "From: " + subList.joinToString(", ")
     }
 

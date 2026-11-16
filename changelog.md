@@ -1,6 +1,7 @@
 # Changelog
 
 ## Next
+- Added number of times played to albums glance line.
 - Changed length at which the plays line scrolls.
 - Fixed incorrect relative date formatting.
 
