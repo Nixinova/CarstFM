@@ -42,7 +42,9 @@ class LastFmRepository(val settings: Settings) {
             .getJSONObject(2)
             .getString("#text")
             .ifEmpty { null }
-        val image = if (albumArtUrl == null) null else downloadImage(albumArtUrl)
+        val image = if (albumArtUrl == null) null else downloadImage(albumArtUrl).valueOrReturn {
+            return Result.Fail<CurrentTrack>(it)
+        }
 
         return Result.Ok(CurrentTrack(
             TrackDetails(artist, album, song),
@@ -136,7 +138,10 @@ class LastFmRepository(val settings: Settings) {
 
     private fun callLastFmApi(params: Map<String, String>): Result<String> {
         val url = apiUrlBase + "?" + params.map { "${it.key}=${it.value}" }.joinToString("&")
-        val response = fetch(url)
+        val response = fetch(url).valueOrReturn {
+            return Result.Fail<String>(it)
+        }
+
         try {
             val error = JSONObject(response).optString("error")
             if (error.isNotEmpty()) {
@@ -154,8 +159,10 @@ class LastFmRepository(val settings: Settings) {
 
         val url = settings.customPlaysEndpoint +
             "?artist=${encode(artist)}&track=${encode(song)}"
-        val response = fetch(url)
-        return Result.Ok(response)
+        val response = fetch(url).valueOrReturn {
+            return Result.Fail<String?>(it)
+        }
+        return Result.Ok<String?>(response)
     }
 
     private fun toParams(vararg args: Pair<String, String>): Map<String, String> {
@@ -172,17 +179,27 @@ class LastFmRepository(val settings: Settings) {
         return URLEncoder.encode(string, StandardCharsets.UTF_8)
     }
 
-    private fun fetch(url: String): String {
-        return URL(url)
-            .openStream()
-            .bufferedReader()
-            .use { it.readText() }
+    private fun fetch(url: String): Result<String> {
+        return try {
+            Result.Ok(
+                URL(url)
+                    .openStream()
+                    .bufferedReader()
+                    .use { it.readText() }
+            )
+        } catch (ex: Exception) {
+            Result.Fail<String>("Failed to fetch url $url: " + ex.message)
+        }
     }
 
-    private fun downloadImage(url: String): IconCompat {
-        val bitmap = URL(url)
-            .openStream()
-            .use { BitmapFactory.decodeStream(it) }
-        return IconCompat.createWithBitmap(bitmap)
+    private fun downloadImage(url: String): Result<IconCompat> {
+        try {
+            val bitmap = URL(url)
+                .openStream()
+                .use { BitmapFactory.decodeStream(it) }
+            return Result.Ok(IconCompat.createWithBitmap(bitmap))
+        } catch (ex: Exception) {
+            return Result.Fail<IconCompat>("Failed to download image: " + ex.message)
+        }
     }
 }
