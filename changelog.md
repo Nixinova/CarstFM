@@ -1,6 +1,6 @@
 # Changelog
 
-## Next
+## 1.3.2 (10)
 - Fixed button labels causing overflow.
 
 ## 1.3.1 (9)
