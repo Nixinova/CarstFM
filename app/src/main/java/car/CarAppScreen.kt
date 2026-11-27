@@ -147,7 +147,6 @@ class CarAppScreen(
 
     private fun getBookmarkAction(setting: BookmarksSetting, icons: Pair<Int, Int>): Action {
         return Action.Builder()
-            .setTitle("Bookmark ${setting.type.name}")
             .setIcon(
                 CarIcon.Builder(
                     IconCompat.createWithResource(

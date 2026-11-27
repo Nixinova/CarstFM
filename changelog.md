@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed button labels causing overflow.
+
 ## 1.3.1 (9)
 - Added number of times played to albums glance line.
 - Changed length at which the plays line scrolls.
