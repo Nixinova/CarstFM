@@ -165,6 +165,14 @@ class CarAppScreen(
 
     private val handler = Handler(Looper.getMainLooper())
 
+    private val refreshRunnable = object : Runnable {
+        // Refresh UI every 0.1min
+        override fun run() {
+            handler.postDelayed(this, 6_000)
+            invalidate()
+        }
+    }
+
     private val fetchTrackRunnable = object : Runnable {
         // Fetch current track
         override fun run() {
@@ -198,6 +206,7 @@ class CarAppScreen(
     }
 
     init {
+        handler.post(refreshRunnable)
         handler.post(fetchTrackRunnable)
     }
 }
