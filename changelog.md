@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Removed line carouseling.
+
 ## 1.3.2 (10)
 - Fixed button labels causing overflow.
 

@@ -28,8 +28,6 @@ class CarAppScreen(
     private val repository: LastFmRepository,
     private val settings: Settings
 ) : Screen(carContext) {
-    // Time to dwell on each item when displaying a carousel of text data
-    val dwellTime: Duration = Duration.ofSeconds(8)
     // Interval to refetch current track info
     val refetchTime: Duration = Duration.ofSeconds(10)
 
@@ -96,12 +94,10 @@ class CarAppScreen(
         playsResult: Result<LastFmRepository.TrackPlaysDto>?,
         tagsResult: Result<List<String>>?,
     ): Pane {
-        // A dummy number used in modulo operations below to denote which page of some data to view
-        val carouselValue = (Instant.now().epochSecond.toInt() % 60) / dwellTime.seconds.toInt()
         val albumArt = currentTrack.albumArt
 
-        val trackDisplay = TrackDisplay(carouselValue)
-        val glanceDisplay = GlanceDisplay(carouselValue, albumArt != null)
+        val trackDisplay = TrackDisplay()
+        val glanceDisplay = GlanceDisplay()
 
         return Pane.Builder()
             .apply {
@@ -128,10 +124,9 @@ class CarAppScreen(
                 Row.Builder()
                     .setTitle("At a glance")
                     .addText(
-                        if (carouselValue % 10 <= 5)
-                            glanceDisplay.plays(playsResult)
-                        else
-                            glanceDisplay.uniqueAlbums(playsResult)
+                        glanceDisplay.plays(playsResult) +
+                        "\n" +
+                        glanceDisplay.uniqueAlbums(playsResult)
                     )
                     .addText(glanceDisplay.tags(tagsResult))
                     .addAction(
@@ -170,14 +165,6 @@ class CarAppScreen(
 
     private val handler = Handler(Looper.getMainLooper())
 
-    private val updateRunnable = object : Runnable {
-        // Refresh UI every dwellTime seconds
-        override fun run() {
-            handler.postDelayed(this, dwellTime.toMillis())
-            invalidate()
-        }
-    }
-
     private val fetchTrackRunnable = object : Runnable {
         // Fetch current track
         override fun run() {
@@ -191,14 +178,17 @@ class CarAppScreen(
                     if (newCurrentTrack != null && newCurrentTrack != lastCurrentTrack) {
                         // Set now-playing start time
                         curTrackStartPlayTime = if (newCurPlay.time == null) Instant.now() else null
+                        invalidate()
                         // (Re)fetch these
                         playsResult = null
                         Thread {
                             playsResult = repository.getTrackPlays(usernameVal, newCurrentTrack.artist, newCurrentTrack.song)
+                            invalidate()
                         }.start()
                         tagsResult = null
                         Thread {
                             tagsResult = repository.getTrackTags(usernameVal, newCurrentTrack)
+                            invalidate()
                         }.start()
                     }
                 }
@@ -208,7 +198,6 @@ class CarAppScreen(
     }
 
     init {
-        handler.post(updateRunnable)
         handler.post(fetchTrackRunnable)
     }
 }

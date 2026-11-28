@@ -5,11 +5,8 @@ import com.nixinova.carstfm.shared.repository.LastFmRepository
 import com.nixinova.carstfm.shared.util.DateFormatting
 import java.time.Duration
 import java.time.Instant
-import kotlin.collections.reduce
 
-class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
-    val maxLineLen = if (hasAlbumArt) 32 else 55
-
+class GlanceDisplay() {
     fun plays(playsResult: Result<LastFmRepository.TrackPlaysDto>?): String {
         if (playsResult == null) {
             return "Plays loading..."
@@ -42,9 +39,6 @@ class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
                 }
                 val totalNPlays = (if (hasMore) ">" else "") + nPlays
                 val text = "Plays: $totalNPlays ($firstPlayed - $lastPlayed)"
-                if (text.length > maxLineLen && carouselValue % 5 > 2) {
-                    return "…" + text.takeLast(maxLineLen)
-                }
                 return text
             }
         }
@@ -74,9 +68,7 @@ class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
             .sortedBy { it.first }
             .sortedByDescending { it.second }
             .map { "${it.first} (${it.second}x)" }
-
-        val subList = cycleList(albumsTextList, carouselValue)
-        return "From: " + subList.joinToString(", ")
+        return "From: " + albumsTextList.joinToString(", ")
     }
 
     fun tags(tagsResult: Result<List<String>>?): String {
@@ -93,13 +85,6 @@ class GlanceDisplay(val carouselValue: Int, hasAlbumArt: Boolean) {
         }
 
         val sortedTags = tagsResult.value.sortedBy { it.lowercase() }
-        val subList = cycleList(sortedTags, carouselValue)
-        return "Tags: " + subList.joinToString(", ")
-    }
-
-    private fun cycleList(list: List<String>, carouselValue: Int): List<String> {
-        val carouselIndex = carouselValue % list.size
-        return list.slice(carouselIndex until list.size) +
-            list.slice(0 until carouselIndex)
+        return "Tags: " + sortedTags.joinToString(", ")
     }
 }

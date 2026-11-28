@@ -5,12 +5,14 @@ import com.nixinova.carstfm.shared.util.DateFormatting
 import java.time.Duration
 import java.time.Instant
 
-class TrackDisplay(val carouselValue: Int) {
+class TrackDisplay() {
     fun trackSubtitle(currentTrack: CurrentTrack): String {
-        return if (carouselValue % 2 == 0 || currentTrack.track.album == null)
-            "by " + currentTrack.track.artist
+        val byArtist = "by " + currentTrack.track.artist
+        val fromAlbum = "from " + currentTrack.track.album
+        return if (currentTrack.track.album == null)
+            byArtist
         else
-            "from " + currentTrack.track.album
+            "$byArtist $fromAlbum"
     }
 
     fun trackTime(currentTrack: CurrentTrack, curTrackStartTime: Instant?): String {
